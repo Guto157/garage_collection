@@ -1,12 +1,12 @@
 const cars=[
-{id:'city',name:'Volkswagen Golf GTI',class:'Hatch esportivo',rarity:'COMUM',tier:'common',price:0,income:3,description:'Seu primeiro esportivo. O começo da coleção.',image:'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1400&q=85'},
-{id:'porsche',name:'Porsche 911 Carrera',class:'Esportivo',rarity:'INCOMUM',tier:'uncommon',price:1800,income:18,description:'Um ícone das estradas, com design inconfundível.',image:'https://images.unsplash.com/photo-1722753660234-59c8b1fe5386?auto=format&fit=crop&w=1400&q=85'},
-{id:'mercedes',name:'Mercedes-AMG GT',class:'Grand tourer',rarity:'RARO',tier:'rare',price:9000,income:65,description:'Elegância alemã com desempenho de pista.',image:'https://images.unsplash.com/photo-1616788414889-a2942b90de0e?auto=format&fit=crop&w=1400&q=85'},
-{id:'ferrari',name:'Ferrari 458 Italia',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:32000,income:210,description:'Um V8 italiano e linhas que marcaram época.',image:'https://images.unsplash.com/photo-1614200179396-2bdb77ebf81b?auto=format&fit=crop&w=1400&q=85'},
-{id:'lamborghini',name:'Lamborghini Aventador',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:115000,income:720,description:'Presença extrema e desempenho extraordinário.',image:'https://images.unsplash.com/photo-1627650144271-5458642bf9bf?auto=format&fit=crop&w=1400&q=85'},
-{id:'porschegt',name:'Porsche 911 GT2 RS',class:'Track-focused',rarity:'LENDÁRIO',tier:'legendary',price:480000,income:2800,description:'Uma máquina de alto desempenho feita para a pista.',image:'https://images.unsplash.com/photo-1583427053896-00378e61e661?auto=format&fit=crop&w=1400&q=85'},
-{id:'mclaren',name:'McLaren 720S',class:'Hipercarro',rarity:'LENDÁRIO',tier:'legendary',price:1900000,income:10500,description:'Tecnologia, leveza e aerodinâmica de outro nível.',image:'https://images.unsplash.com/photo-1760689044672-2344a2bdc558?auto=format&fit=crop&w=1400&q=85'},
-{id:'bugatti',name:'Bugatti Chiron',class:'Hipercarro',rarity:'MÍTICO',tier:'mythic',price:12000000,income:52000,description:'O topo absoluto da engenharia automotiva.',image:'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=1400&q=85'}
+{id:'city',name:'Volkswagen Golf GTI',class:'Hatch esportivo',rarity:'COMUM',tier:'common',price:0,income:3,description:'Seu primeiro esportivo. O começo da coleção.',image:'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=85'},
+{id:'porsche',name:'Porsche 911 Carrera',class:'Esportivo',rarity:'INCOMUM',tier:'uncommon',price:1800,income:18,description:'Um ícone das estradas, com design inconfundível.',image:'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1400&q=85'},
+{id:'mercedes',name:'Mercedes-AMG GT',class:'Grand tourer',rarity:'RARO',tier:'rare',price:9000,income:65,description:'Elegância alemã com desempenho de pista.',image:'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1400&q=85'},
+{id:'ferrari',name:'Ferrari 458 Italia',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:32000,income:210,description:'Um V8 italiano e linhas que marcaram época.',image:'https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=1400&q=85'},
+{id:'lamborghini',name:'Lamborghini Aventador',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:115000,income:720,description:'Presença extrema e desempenho extraordinário.',image:'https://images.unsplash.com/photo-1504215680853-026ed2a45def?auto=format&fit=crop&w=1400&q=85'},
+{id:'porschegt',name:'Porsche 911 GT2 RS',class:'Track-focused',rarity:'LENDÁRIO',tier:'legendary',price:480000,income:2800,description:'Uma máquina de alto desempenho feita para a pista.',image:'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1400&q=85'},
+{id:'mclaren',name:'McLaren 720S',class:'Hipercarro',rarity:'LENDÁRIO',tier:'legendary',price:1900000,income:10500,description:'Tecnologia, leveza e aerodinâmica de outro nível.',image:'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=85'},
+{id:'bugatti',name:'Bugatti Chiron',class:'Hipercarro',rarity:'MÍTICO',tier:'mythic',price:12000000,income:52000,description:'O topo absoluto da engenharia automotiva.',image:'https://images.unsplash.com/photo-1614200187524-dc4b892acf16?auto=format&fit=crop&w=1400&q=85'}
 ];
 const upgrades=[
 {id:'click',name:'Treinamento do colecionador',desc:'Aumenta o dinheiro recebido por toque.',base:250,kind:'click'},
@@ -14,6 +14,11 @@ const upgrades=[
 {id:'network',name:'Rede de investidores',desc:'Amplia ainda mais o rendimento da coleção.',base:6500,kind:'income2'}
 ];
 const key='garageCollectionSave_v2',oldKey='garageCollectionSave_v1';
+
+/* Proteção visual: se o servidor de fotos falhar, nunca deixa o espaço em branco. */
+const carFallback='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 650"><defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#26384b"/><stop offset="1" stop-color="#090e16"/></linearGradient></defs><rect width="1200" height="650" fill="url(#g)"/><path d="M120 455h960l-35-105q-12-36-55-48l-150-45-110-105q-20-20-55-20H430q-45 0-70 35L250 350l-90 35q-40 15-40 70z" fill="#b78b4b" stroke="#f0c778" stroke-width="9"/><path d="M430 165h245l100 110H350z" fill="#182534" stroke="#d8b77c" stroke-width="8"/><circle cx="340" cy="465" r="75" fill="#080b12" stroke="#9ba8b7" stroke-width="18"/><circle cx="865" cy="465" r="75" fill="#080b12" stroke="#9ba8b7" stroke-width="18"/><text x="600" y="585" text-anchor="middle" fill="#dce4ed" font-family="Arial" font-size="25" letter-spacing="7">GARAGE COLLECTION</text></svg>');
+document.addEventListener('error',e=>{const img=e.target;if(img&&img.tagName==='IMG'&&!img.dataset.fallback){img.dataset.fallback='1';img.src=carFallback;img.style.objectFit='contain';img.style.padding='12px';}},true);
+
 const fmt=n=>'R$ '+Math.floor(n).toLocaleString('pt-BR');
 const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false};
 let state={...defaultState};
