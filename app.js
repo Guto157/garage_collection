@@ -199,13 +199,50 @@ function renderDealership(){
  }).join('');
  container.querySelectorAll('[data-rarity]').forEach(button=>button.onclick=()=>{
   openDealershipRarity=openDealershipRarity===button.dataset.rarity?null:button.dataset.rarity;
-  try{if(openDealershipRarity)localStorage.setItem(key+'_openRarity',openDealershipRarity);else localStorage.removeItem(key+'_openRarity');}catch(e){}
+  try{if(openDealershipRarity)localStorage.setItem(key+'_openRarity',openDealershipRarity);else localStorage.removeItem(key+'_openRarity');localStorage.removeItem(key+'_albumRarity');}catch(e){}
   renderDealership();
  });
  container.querySelectorAll('[data-buy]').forEach(button=>button.onclick=()=>buy(button.dataset.buy));
 }
 
 
+let albumRarity='common';
+try{albumRarity=localStorage.getItem(key+'_albumRarity')||'common';}catch(e){}
+let albumNewVehicleId=null;
+function renderAlbum(){
+ const totalOwned=state.owned.length;
+ document.querySelector('#collection-progress').textContent=totalOwned+' / '+cars.length+' veículos';
+ document.querySelector('#progress-fill').style.width=(totalOwned/cars.length*100)+'%';
+ if(!rarityGroups.some(group=>group.tier===albumRarity))albumRarity='common';
+ const tabs=document.querySelector('#album-rarity-tabs');
+ tabs.innerHTML=rarityGroups.map(group=>{
+  const all=cars.filter(car=>car.tier===group.tier);
+  const owned=all.filter(car=>state.owned.includes(car.id)).length;
+  return '<button type="button" class="album-rarity-tab '+(albumRarity===group.tier?'active':'')+'" data-album-rarity="'+group.tier+'"><span>'+group.label+'</span><small>'+owned+'/'+all.length+'</small></button>';
+ }).join('');
+ tabs.querySelectorAll('[data-album-rarity]').forEach(button=>button.onclick=()=>{
+  albumRarity=button.dataset.albumRarity;
+  try{localStorage.setItem(key+'_albumRarity',albumRarity);}catch(e){}
+  renderAlbum();
+ });
+ const group=rarityGroups.find(item=>item.tier===albumRarity);
+ const pageCars=cars.filter(car=>car.tier===albumRarity);
+ const pageOwned=pageCars.filter(car=>state.owned.includes(car.id)).length;
+ const tierIndex=rarityGroups.findIndex(item=>item.tier===albumRarity)+1;
+ const stickers=pageCars.map((car,index)=>{
+  if(!state.owned.includes(car.id)){
+   return '<div class="album-empty-slot '+(car.tier==='special'?'special-slot':'')+'"><span class="album-slot-number">Nº '+String(index+1).padStart(2,'0')+'</span><div class="album-empty-mark">＋</div><strong>ESPAÇO VAGO</strong><small>FIGURINHA A DESCOBRIR</small></div>';
+  }
+  const isNew=albumNewVehicleId===car.id;
+  return '<article class="album-sticker '+(car.tier==='special'?'album-special-sticker ':'')+(isNew?'just-added':'')+'"><span class="album-sticker-number">Nº '+String(index+1).padStart(2,'0')+'</span><div class="album-sticker-photo"><img data-car-id="'+car.id+'" loading="lazy" src="'+car.image+'" alt="'+car.name+'"></div><div class="album-sticker-caption"><strong>'+car.name+'</strong><small>'+car.class+'</small><span>✓ CONQUISTADO</span></div></article>';
+ }).join('');
+ document.querySelector('#album-page').innerHTML='<div class="album-page-heading"><div><span>GARAGE COLLECTION · SÉRIE 01</span><h3>'+group.label+'</h3><p>'+group.note+'</p></div><strong>'+String(tierIndex).padStart(2,'0')+' / 07</strong></div><div class="album-page-stats"><span>'+pageOwned+' DE '+pageCars.length+' FIGURINHAS COLADAS</span><span>'+Math.round(pageOwned/Math.max(1,pageCars.length)*100)+'% COMPLETO</span></div><div class="album-sticker-grid">'+stickers+'</div><div class="album-page-footer"><span>GARAGE COLLECTION</span><span>EDIÇÃO DE COLECIONADOR</span></div>';
+ if(albumNewVehicleId){
+  const fresh=document.querySelector('.album-sticker.just-added');
+  if(fresh){setTimeout(()=>fresh.classList.remove('just-added'),1300);}
+  albumNewVehicleId=null;
+ }
+}
 function render(){
 const car=getCar(state.selected);
 document.querySelector('#money').textContent=fmt(state.money);
@@ -226,9 +263,7 @@ document.querySelector('#car-index').textContent=String(state.owned.indexOf(car.
 document.querySelector('#garage-total').textContent=state.owned.length+' veículos';
 document.querySelector('#garage-list').innerHTML=state.owned.map(id=>{const c=getCar(id);return '<button class="garage-car '+(id===state.selected?'selected':'')+'" data-select="'+id+'"><img data-car-id="'+c.id+'" src="'+c.image+'" alt="'+c.name+'"><strong>'+c.name+'</strong><small>'+c.rarity+'</small></button>'}).join('');
 renderDealership();
-document.querySelector('#collection-list').innerHTML=state.owned.map(id=>card(getCar(id))).join('');
-document.querySelector('#collection-progress').textContent=state.owned.length+' / '+cars.length+' carros';
-document.querySelector('#progress-fill').style.width=(state.owned.length/cars.length*100)+'%';
+renderAlbum();
 renderUpgrades();renderMission();renderDaily();
 document.querySelectorAll('[data-select]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.select;save();render()});
 
@@ -298,7 +333,7 @@ function openPack(type){
   car=pool[Math.floor(Math.random()*pool.length)];
  }
  const duplicate=state.owned.includes(car.id);
- if(duplicate)state.cardCopies[car.id]=(Number(state.cardCopies[car.id])||0)+1;else state.owned.push(car.id);
+ if(duplicate)state.cardCopies[car.id]=(Number(state.cardCopies[car.id])||0)+1;else{state.owned.push(car.id);albumNewVehicleId=car.id;}
  state.selected=car.id;save();render();
  const result=document.querySelector('#pack-result');result.hidden=false;
  result.innerHTML='<div class="pack-result-heading">PACOTE ABERTO</div><div class="pack-result-card"><img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta repetida! Agora você tem '+(1+state.cardCopies[car.id])+' cópias.':'Nova carta adicionada à sua coleção!')+'</p></div></div>';
@@ -320,7 +355,7 @@ document.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>upgrade(b.d
 }
 function renderDaily(){const today=new Date().toLocaleDateString('en-CA');const btn=document.querySelector('#daily-button');const done=state.lastDaily===today;btn.disabled=done;btn.textContent=done?'RECOMPENSA RESGATADA':'RESGATAR R$ 500';}
 function renderMission(){const done=state.owned.length>=2;const text=document.querySelector('#mission-text'),btn=document.querySelector('#mission-button');if(state.missionClaimed){text.textContent='Missão concluída. Novos desafios em breve.';btn.textContent='CONCLUÍDA';btn.disabled=true}else if(done){text.textContent='Você já tem mais de um carro. Resgate sua recompensa!';btn.textContent='RESGATAR R$ 1.000';btn.disabled=false}else{text.textContent='Compre seu segundo veículo para liberar R$ 1.000 de recompensa.';btn.textContent='CARRO NECESSÁRIO';btn.disabled=true}}
-function buy(id){const c=getCar(id);if(state.owned.includes(id))return;if(state.money<c.price){notify('Dinheiro insuficiente. Trabalhe ou aguarde a renda da garagem.');return}state.money-=c.price;state.owned.push(id);state.selected=id;save();render();notify(c.name+' entrou para sua coleção!')}
+function buy(id){const c=getCar(id);if(state.owned.includes(id))return;if(state.money<c.price){notify('Dinheiro insuficiente. Trabalhe ou aguarde a renda da garagem.');return}state.money-=c.price;state.owned.push(id);state.selected=id;albumNewVehicleId=id;save();render();notify(c.name+' entrou para sua coleção!')}
 function upgrade(kind){const u=upgrades.find(x=>x.kind===kind);const level=kind==='click'?state.clickLevel:kind==='income'?state.incomeLevel:state.networkLevel;const cost=Math.floor(u.base*Math.pow(1.85,level));if(state.money<cost){notify('Saldo insuficiente para essa melhoria.');return}state.money-=cost;if(kind==='click')state.clickLevel++;else if(kind==='income')state.incomeLevel++;else state.networkLevel++;save();render();notify('Melhoria adquirida! Seus ganhos aumentaram.')}
 let saveClickTimer=null;
 let cashRefreshQueued=false;
@@ -361,7 +396,7 @@ resetProgressButton.addEventListener('click',()=>{
  if(saveClickTimer){clearTimeout(saveClickTimer);saveClickTimer=null;}
  try{localStorage.removeItem(key);localStorage.removeItem(activeTabKey);localStorage.removeItem(key+'_openRarity');}catch(e){}
  state={...defaultState,money:defaultState.money,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{}};
- openDealershipRarity=null;
+ openDealershipRarity=null;albumRarity='common';albumNewVehicleId=null;
  const packResult=document.querySelector('#pack-result');if(packResult)packResult.hidden=true;
  save();
  render();

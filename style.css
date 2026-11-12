@@ -118,3 +118,48 @@ img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user
 .vehicle-card.special-card .special-chrome .owned-tag{color:#125b3c;border-color:#23845b88;background:#ffffff80}
 @keyframes specialChromeFlow{from{background-position:0% 50%}to{background-position:280% 50%}}
 @keyframes specialChromeShine{0%{background-position:150% 0}100%{background-position:-120% 0}}
+
+/* Álbum de figurinhas: páginas editoriais por raridade */
+.album-shell{overflow:hidden;border:1px solid #b99a69;border-radius:13px;background:#d9c7a4;box-shadow:0 16px 40px #0005;color:#27231d}
+.album-masthead{padding:19px 22px 15px;text-align:center;background:linear-gradient(120deg,#1a2633,#34485b 48%,#182330);color:#f7e8c9;border-bottom:4px solid #b88a49}
+.album-masthead span,.album-masthead strong,.album-masthead small{display:block}
+.album-masthead span{font-size:9px;letter-spacing:4px;color:#e7bd76}
+.album-masthead strong{font:900 clamp(24px,5vw,39px) 'Barlow Condensed';letter-spacing:1.5px;margin:3px 0}
+.album-masthead small{font-size:8px;letter-spacing:2px;color:#c3cbd3}
+.album-rarity-tabs{display:flex;gap:7px;padding:12px;background:#eee2c9;overflow-x:auto;border-bottom:1px solid #c4ad87}
+.album-rarity-tab{flex:1;min-width:82px;border:1px solid #c9b48e;border-radius:6px;padding:9px 7px;background:#f8f0df;color:#514735;cursor:pointer}
+.album-rarity-tab span,.album-rarity-tab small{display:block}
+.album-rarity-tab span{font:800 11px 'Barlow Condensed';letter-spacing:.5px}
+.album-rarity-tab small{font-size:9px;margin-top:3px;color:#82745d}
+.album-rarity-tab.active{background:#26384a;color:#fff0d3;border-color:#26384a;box-shadow:0 3px 9px #24364a44}
+.album-rarity-tab.active small{color:#e6c58e}
+.album-page{margin:13px;padding:clamp(13px,3vw,25px);background-color:#f5ecd9;background-image:radial-gradient(#bda77d33 .7px,transparent .7px);background-size:8px 8px;border:1px solid #c6b38f;box-shadow:inset 0 0 25px #9b815322}
+.album-page-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:13px;border-bottom:2px solid #514735}
+.album-page-heading>div>span{font-size:8px;letter-spacing:2px;color:#8b744d;font-weight:800}
+.album-page-heading h3{font:900 clamp(28px,6vw,42px) 'Barlow Condensed';line-height:1;margin:5px 0;color:#262a2d}
+.album-page-heading p{font-size:10px;color:#72664f;margin:0}
+.album-page-heading>strong{font:900 19px 'Barlow Condensed';color:#927344}
+.album-page-stats{display:flex;justify-content:space-between;gap:8px;padding:10px 0;color:#756447;font-size:8px;letter-spacing:1px;font-weight:800}
+.album-sticker-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.album-sticker,.album-empty-slot{min-width:0;position:relative;min-height:165px;padding:7px;background:#fffdf7;border:1px solid #d1c3a8;box-shadow:0 2px 5px #5e4a2b20}
+.album-sticker{transform:rotate(-.35deg)}
+.album-sticker:nth-child(3n){transform:rotate(.45deg)}
+.album-sticker-number,.album-slot-number{display:block;font-size:8px;font-weight:800;letter-spacing:1px;color:#9b835c;margin-bottom:5px}
+.album-sticker-photo{height:88px;overflow:hidden;background:#d8d1c3;border:1px solid #e1d7c5}
+.album-sticker-photo img{width:100%;height:100%;display:block;object-fit:cover}
+.album-sticker-caption{padding:6px 2px 1px}
+.album-sticker-caption strong,.album-sticker-caption small,.album-sticker-caption span{display:block}
+.album-sticker-caption strong{font:800 12px/1.1 'Barlow Condensed';color:#282a2c}
+.album-sticker-caption small{font-size:8px;line-height:1.25;color:#766b5b;margin-top:3px;min-height:18px}
+.album-sticker-caption span{font-size:7px;letter-spacing:.6px;color:#3c805b;font-weight:900;margin-top:5px}
+.album-empty-slot{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#e8ddc7;border:1px dashed #b9a783;box-shadow:inset 0 0 15px #b8a27b22}
+.album-empty-mark{width:35px;height:35px;display:grid;place-items:center;border:1px dashed #aa9877;border-radius:50%;font-size:22px;color:#a18d69;margin:5px 0 9px}
+.album-empty-slot strong{font:800 10px 'Barlow Condensed';letter-spacing:1px;color:#867657}
+.album-empty-slot small{font-size:7px;letter-spacing:.7px;color:#a09276;margin-top:4px}
+.album-empty-slot.special-slot{background:linear-gradient(145deg,#e9e1d2,#d5c9b4)}
+.album-special-sticker{border:2px solid #d4b56d;background:linear-gradient(145deg,#fffdf5,#f3e3bc);box-shadow:0 0 0 2px #fff8df,0 3px 10px #b08c3e44}
+.album-special-sticker .album-sticker-caption span{color:#a16d12}
+.album-page-footer{display:flex;justify-content:space-between;border-top:1px solid #c8b693;margin-top:17px;padding-top:9px;color:#9a8764;font-size:7px;letter-spacing:1.5px;font-weight:800}
+.album-sticker.just-added{animation:albumStickerIn .8s cubic-bezier(.2,.9,.25,1.2) both}
+@keyframes albumStickerIn{0%{opacity:0;transform:translateY(-28px) rotate(-9deg) scale(1.16)}65%{opacity:1;transform:translateY(3px) rotate(2deg) scale(.98)}100%{opacity:1;transform:rotate(-.35deg) scale(1)}}
+@media(max-width:700px){.album-page{margin:8px;padding:12px}.album-sticker-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.album-sticker,.album-empty-slot{min-height:155px}.album-sticker-photo{height:91px}.album-rarity-tabs{gap:6px}.album-rarity-tab{min-width:76px;flex:0 0 auto}.album-masthead{padding:15px 10px}.album-page-stats{font-size:7px}}
