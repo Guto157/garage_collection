@@ -86,27 +86,33 @@ async function findCommonsCarImage(car){
  if(commonsImageRequests.has(car.id))return commonsImageRequests.get(car.id);
  const task=(async()=>{
   const tokens=car.name.toLowerCase().split(/[^a-z0-9]+/).filter(word=>word.length>2);
-  const searches=[car.name,tokens.slice(0,3).join(' ')].filter(Boolean);
+  const searches=[car.name,tokens.slice(0,3).join(' '),tokens.slice(-2).join(' '),tokens.slice(0,2).join(' ')]
+   .filter(term=>term&&term.trim().length>2);
+  const candidates=new Map();
   for(const term of [...new Set(searches)]){
-   const query=encodeURIComponent(term);
-   const endpoint='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+query+'&gsrnamespace=6&gsrlimit=30&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*';
-   const response=await fetch(endpoint);
-   if(!response.ok)continue;
-   const data=await response.json();
-   const pages=Object.values(data.query?.pages||{});
-   const usable=pages.filter(page=>{
-    const title=(page.title||'').toLowerCase();
-    return /\.(jpg|jpeg|png|webp)$/i.test(title)&&page.imageinfo?.[0];
-   }).map(page=>{
-    const title=(page.title||'').toLowerCase();
-    const score=tokens.reduce((sum,token)=>sum+(title.includes(token)?1:0),0);
-    return {page,score};
-   }).filter(item=>item.score>=Math.min(2,tokens.length));
-   usable.sort((a,b)=>b.score-a.score);
-   if(usable.length){
-    const info=usable[0].page.imageinfo[0];
-    return info.thumburl||info.url||null;
-   }
+   try{
+    const query=encodeURIComponent(term);
+    const endpoint='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+query+'&gsrnamespace=6&gsrlimit=50&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*';
+    const response=await fetch(endpoint);
+    if(!response.ok)continue;
+    const data=await response.json();
+    const pages=Object.values(data.query?.pages||{});
+    pages.forEach(page=>{
+     const title=(page.title||'').toLowerCase();
+     if(!/\.(jpg|jpeg|png|webp)$/i.test(title)||!page.imageinfo?.[0])return;
+     const score=tokens.reduce((sum,token)=>sum+(title.includes(token)?1:0),0);
+     if(score<1)return;
+     const key=page.title;
+     const previous=candidates.get(key);
+     if(!previous||score>previous.score)candidates.set(key,{page,score});
+    });
+   }catch(error){console.warn('Busca de imagem falhou:',car.name,error);}
+  }
+  const ranked=[...candidates.values()].sort((a,b)=>b.score-a.score);
+  const best=ranked.find(item=>item.score>=Math.min(2,tokens.length))||ranked[0];
+  if(best){
+   const info=best.page.imageinfo[0];
+   return info.thumburl||info.url||null;
   }
   return null;
  })();
@@ -211,7 +217,7 @@ document.querySelector('#car-index').textContent=String(state.owned.indexOf(car.
 document.querySelector('#garage-total').textContent=state.owned.length+' veículos';
 document.querySelector('#garage-list').innerHTML=state.owned.map(id=>{const c=getCar(id);return '<button class="garage-car '+(id===state.selected?'selected':'')+'" data-select="'+id+'"><img data-car-id="'+c.id+'" src="'+c.image+'" alt="'+c.name+'"><strong>'+c.name+'</strong><small>'+c.rarity+'</small></button>'}).join('');
 renderDealership();
-document.querySelector('#collection-list').innerHTML=cars.map(card).join('');
+document.querySelector('#collection-list').innerHTML=state.owned.map(id=>card(getCar(id))).join('');
 document.querySelector('#collection-progress').textContent=state.owned.length+' / '+cars.length+' carros';
 document.querySelector('#progress-fill').style.width=(state.owned.length/cars.length*100)+'%';
 renderUpgrades();renderMission();renderDaily();
