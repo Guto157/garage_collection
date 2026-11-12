@@ -1,19 +1,19 @@
 const cars=[
 {id:'city',name:'Volkswagen Golf GTI',class:'Hatch esportivo',rarity:'COMUM',tier:'common',price:0,income:3,description:'Seu primeiro esportivo. O começo da coleção.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Volkswagen_Golf_GTi_MK_7.jpg/1280px-Volkswagen_Golf_GTi_MK_7.jpg'},
-{id:'porsche',name:'Porsche 911 Carrera',class:'Esportivo',rarity:'INCOMUM',tier:'uncommon',price:1800,income:18,description:'Um ícone das estradas, com design inconfundível.',image:'https://upload.wikimedia.org/wikipedia/commons/b/b5/Porsche_911_Carrera.jpg'},
-{id:'mercedes',name:'Mercedes-AMG GT',class:'Grand tourer',rarity:'RARO',tier:'rare',price:9000,income:65,description:'Elegância alemã com desempenho de pista.',image:'https://upload.wikimedia.org/wikipedia/commons/b/bf/MERCEDES-AMG_GT.jpg'},
-{id:'ferrari',name:'Ferrari 458 Italia',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:32000,income:210,description:'Um V8 italiano e linhas que marcaram época.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Ferrari458Italia.jpg/1280px-Ferrari458Italia.jpg'},
-{id:'lamborghini',name:'Lamborghini Aventador',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:115000,income:720,description:'Presença extrema e desempenho extraordinário.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Lamborghini_Aventador.jpg/1280px-Lamborghini_Aventador.jpg'},
-{id:'porschegt',name:'Porsche 911 GT2 RS',class:'Track-focused',rarity:'LENDÁRIO',tier:'legendary',price:480000,income:2800,description:'Uma máquina de alto desempenho feita para a pista.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Porsche_911_GT2_RS.jpg/1280px-Porsche_911_GT2_RS.jpg'},
-{id:'mclaren',name:'McLaren 720S',class:'Hipercarro',rarity:'LENDÁRIO',tier:'legendary',price:1900000,income:10500,description:'Tecnologia, leveza e aerodinâmica de outro nível.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/McLaren_720S.jpg/1280px-McLaren_720S.jpg'},
-{id:'bugatti',name:'Bugatti Chiron',class:'Hipercarro',rarity:'MÍTICO',tier:'mythic',price:12000000,income:52000,description:'O topo absoluto da engenharia automotiva.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/A_Bugatti_Chiron.jpg/1280px-A_Bugatti_Chiron.jpg'}
+{id:'porsche',name:'Porsche 911 Carrera',class:'Esportivo',rarity:'INCOMUM',tier:'uncommon',price:100000,income:50,description:'Um ícone das estradas, com design inconfundível.',image:'https://upload.wikimedia.org/wikipedia/commons/b/b5/Porsche_911_Carrera.jpg'},
+{id:'mercedes',name:'Mercedes-AMG GT',class:'Grand tourer',rarity:'RARO',tier:'rare',price:750000,income:300,description:'Elegância alemã com desempenho de pista.',image:'https://upload.wikimedia.org/wikipedia/commons/b/bf/MERCEDES-AMG_GT.jpg'},
+{id:'ferrari',name:'Ferrari 458 Italia',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:6000000,income:2200,description:'Um V8 italiano e linhas que marcaram época.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Ferrari458Italia.jpg/1280px-Ferrari458Italia.jpg'},
+{id:'lamborghini',name:'Lamborghini Aventador',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:50000000,income:16000,description:'Presença extrema e desempenho extraordinário.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Lamborghini_Aventador.jpg/1280px-Lamborghini_Aventador.jpg'},
+{id:'porschegt',name:'Porsche 911 GT2 RS',class:'Track-focused',rarity:'LENDÁRIO',tier:'legendary',price:400000000,income:120000,description:'Uma máquina de alto desempenho feita para a pista.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Porsche_911_GT2_RS.jpg/1280px-Porsche_911_GT2_RS.jpg'},
+{id:'mclaren',name:'McLaren 720S',class:'Hipercarro',rarity:'LENDÁRIO',tier:'legendary',price:3500000000,income:900000,description:'Tecnologia, leveza e aerodinâmica de outro nível.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/McLaren_720S.jpg/1280px-McLaren_720S.jpg'},
+{id:'bugatti',name:'Bugatti Chiron',class:'Hipercarro',rarity:'MÍTICO',tier:'mythic',price:30000000000,income:7000000,description:'O topo absoluto da engenharia automotiva.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/A_Bugatti_Chiron.jpg/1280px-A_Bugatti_Chiron.jpg'}
 ];
 const upgrades=[
-{id:'click',name:'Treinamento do colecionador',desc:'Aumenta o dinheiro recebido por toque.',base:250,kind:'click'},
-{id:'garage',name:'Garagem automatizada',desc:'Multiplica a renda gerada pelos seus veículos.',base:1200,kind:'income'},
-{id:'network',name:'Rede de investidores',desc:'Amplia ainda mais o rendimento da coleção.',base:6500,kind:'income2'}
+{id:'click',name:'Treinamento do colecionador',desc:'Aumenta o dinheiro recebido por toque.',base:500,kind:'click'},
+{id:'garage',name:'Garagem automatizada',desc:'Multiplica a renda gerada pelos seus veículos.',base:5000,kind:'income'},
+{id:'network',name:'Rede de investidores',desc:'Amplia ainda mais o rendimento da coleção.',base:25000,kind:'income2'}
 ];
-const key='garageCollectionSave_v2',oldKey='garageCollectionSave_v1';
+const key='garageCollectionSave_v3';
 
 /* Proteção visual: se o servidor de fotos falhar, nunca deixa o espaço em branco. */
 const carFallback='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 650"><defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#26384b"/><stop offset="1" stop-color="#090e16"/></linearGradient></defs><rect width="1200" height="650" fill="url(#g)"/><path d="M120 455h960l-35-105q-12-36-55-48l-150-45-110-105q-20-20-55-20H430q-45 0-70 35L250 350l-90 35q-40 15-40 70z" fill="#b78b4b" stroke="#f0c778" stroke-width="9"/><path d="M430 165h245l100 110H350z" fill="#182534" stroke="#d8b77c" stroke-width="8"/><circle cx="340" cy="465" r="75" fill="#080b12" stroke="#9ba8b7" stroke-width="18"/><circle cx="865" cy="465" r="75" fill="#080b12" stroke="#9ba8b7" stroke-width="18"/><text x="600" y="585" text-anchor="middle" fill="#dce4ed" font-family="Arial" font-size="25" letter-spacing="7">GARAGE COLLECTION</text></svg>');
@@ -22,12 +22,12 @@ document.addEventListener('error',e=>{const img=e.target;if(img&&img.tagName==='
 const fmt=n=>'R$ '+Math.floor(n).toLocaleString('pt-BR');
 const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false};
 let state={...defaultState};
-try{const raw=localStorage.getItem(key)||localStorage.getItem(oldKey);if(raw){const parsed=JSON.parse(raw);state={...defaultState,...parsed};}}catch(e){console.warn('Save inválido, iniciando novo jogo',e)}
+try{const raw=localStorage.getItem(key);if(raw){const parsed=JSON.parse(raw);state={...defaultState,...parsed};}}catch(e){console.warn('Save inválido, iniciando novo jogo',e)}
 state.owned=[...new Set(['city',...(Array.isArray(state.owned)?state.owned:[])])].filter(id=>cars.some(c=>c.id===id));
 if(!cars.some(c=>c.id===state.selected&&state.owned.includes(c.id)))state.selected=state.owned[0];
 const incomeBase=()=>cars.filter(c=>state.owned.includes(c.id)).reduce((sum,c)=>sum+c.income,0);
 const income=()=>incomeBase()*(1+state.incomeLevel*.65+state.networkLevel*1.4);
-const clickPower=()=>25*Math.pow(1.8,state.clickLevel);
+const clickPower=()=>5*Math.pow(1.5,state.clickLevel);
 let toastTimer;
 function save(){state.lastSave=Date.now();try{localStorage.setItem(key,JSON.stringify(state))}catch(e){console.warn('Não foi possível salvar',e)}}
 function notify(msg){const el=document.querySelector('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
@@ -69,41 +69,29 @@ function renderMission(){const done=state.owned.length>=2;const text=document.qu
 function buy(id){const c=getCar(id);if(state.owned.includes(id))return;if(state.money<c.price){notify('Dinheiro insuficiente. Trabalhe ou aguarde a renda da garagem.');return}state.money-=c.price;state.owned.push(id);state.selected=id;save();render();notify(c.name+' entrou para sua coleção!')}
 function upgrade(kind){const u=upgrades.find(x=>x.kind===kind);const level=kind==='click'?state.clickLevel:kind==='income'?state.incomeLevel:state.networkLevel;const cost=Math.floor(u.base*Math.pow(1.85,level));if(state.money<cost){notify('Saldo insuficiente para essa melhoria.');return}state.money-=cost;if(kind==='click')state.clickLevel++;else if(kind==='income')state.incomeLevel++;else state.networkLevel++;save();render();notify('Melhoria adquirida! Seus ganhos aumentaram.')}
 let saveClickTimer=null;
+let cashRefreshQueued=false;
 function refreshCashOnly(){
  const moneyEl=document.querySelector('#money');
  if(moneyEl)moneyEl.textContent=fmt(state.money);
  document.querySelectorAll('[data-buy]').forEach(b=>{const c=getCar(b.dataset.buy);b.disabled=state.money<c.price});
  document.querySelectorAll('[data-upgrade]').forEach(b=>{const u=upgrades.find(x=>x.kind===b.dataset.upgrade);const lv=b.dataset.upgrade==='click'?state.clickLevel:b.dataset.upgrade==='income'?state.incomeLevel:state.networkLevel;b.disabled=state.money<Math.floor(u.base*Math.pow(1.85,lv))});
 }
-function earnFromCar(event){
- const gain=clickPower();
- state.money+=gain;
- refreshCashOnly();
- const scene=document.querySelector('.scene-wrap');
- const pop=document.createElement('span');
- pop.className='money-float';
- pop.textContent='+ '+fmt(gain);
- const rect=scene.getBoundingClientRect();
- const x=event&&typeof event.clientX==='number'?event.clientX-rect.left:rect.width/2;
- const y=event&&typeof event.clientY==='number'?event.clientY-rect.top:rect.height*.55;
- pop.style.left=Math.max(24,Math.min(rect.width-24,x))+'px';
- pop.style.top=Math.max(28,Math.min(rect.height-20,y))+'px';
- scene.appendChild(pop);
- pop.addEventListener('animationend',()=>pop.remove(),{once:true});
- if(saveClickTimer)clearTimeout(saveClickTimer);
- saveClickTimer=setTimeout(()=>{saveClickTimer=null;save()},250);
+function earnFromCar(){
+ state.money+=clickPower();
+ if(!cashRefreshQueued){
+  cashRefreshQueued=true;
+  requestAnimationFrame(()=>{cashRefreshQueued=false;refreshCashOnly()});
+ }
+ // Salva em lote, sem criar um timer novo a cada toque.
+ if(!saveClickTimer)saveClickTimer=setTimeout(()=>{saveClickTimer=null;save()},500);
 }
 const featuredCar=document.querySelector('.scene-wrap');
 if(featuredCar){
- // Um ganho por contato: pointerdown responde imediatamente e aceita dois dedos.
  featuredCar.addEventListener('pointerdown',event=>{
   if(event.pointerType==='mouse'&&event.button!==0)return;
   event.preventDefault();
-  earnFromCar(event);
+  earnFromCar();
  },{passive:false});
- // Impede menu de pressão prolongada e arrastar/salvar a foto.
- featuredCar.addEventListener('contextmenu',event=>event.preventDefault());
- featuredCar.addEventListener('dragstart',event=>event.preventDefault());
 }
 document.querySelector('#daily-button').onclick=()=>{const today=new Date().toLocaleDateString('en-CA');if(state.lastDaily===today)return;state.lastDaily=today;state.money+=500;save();render();notify('Bônus diário de R$ 500 resgatado!')};
 document.querySelector('#mission-button').onclick=()=>{if(state.owned.length<2||state.missionClaimed)return;state.money+=1000;state.missionClaimed=true;save();render();notify('Missão concluída: +R$ 1.000!')};
