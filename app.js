@@ -352,6 +352,26 @@ document.querySelector('#mission-button').onclick=()=>{if(state.owned.length<2||
 
 const menuToggle=document.querySelector('#menu-toggle'),sideMenu=document.querySelector('#side-menu'),menuBackdrop=document.querySelector('#menu-backdrop');
 function closeSideMenu(){sideMenu.classList.remove('open');menuBackdrop.classList.remove('show');menuToggle.setAttribute('aria-expanded','false');sideMenu.setAttribute('aria-hidden','true');}
+const resetProgressButton=document.createElement('button');
+resetProgressButton.type='button';
+resetProgressButton.innerHTML='<span>↻</span><span><strong>Reiniciar progresso</strong><small>Apagar toda a sua evolução</small></span>';
+sideMenu.insertBefore(resetProgressButton,sideMenu.querySelector('.side-menu-note'));
+resetProgressButton.addEventListener('click',()=>{
+ if(!window.confirm('Tem certeza que deseja apagar TODO o seu progresso? Dinheiro, carros, cartas, cópias e melhorias serão perdidos permanentemente.'))return;
+ if(saveClickTimer){clearTimeout(saveClickTimer);saveClickTimer=null;}
+ try{localStorage.removeItem(key);localStorage.removeItem(activeTabKey);localStorage.removeItem(key+'_openRarity');}catch(e){}
+ state={...defaultState,money:defaultState.money,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{}};
+ openDealershipRarity=null;
+ const packResult=document.querySelector('#pack-result');if(packResult)packResult.hidden=true;
+ save();
+ render();
+ renderUpgrades();
+ renderDaily();
+ renderMission();
+ activateTab('garage',false);
+ closeSideMenu();
+ notify('Progresso reiniciado. Sua nova garagem está pronta!');
+});
 menuToggle.addEventListener('click',()=>{const open=!sideMenu.classList.contains('open');sideMenu.classList.toggle('open',open);menuBackdrop.classList.toggle('show',open);menuToggle.setAttribute('aria-expanded',String(open));sideMenu.setAttribute('aria-hidden',String(!open));});
 menuBackdrop.addEventListener('click',closeSideMenu);
 sideMenu.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===button.dataset.page));document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));closeSideMenu();window.scrollTo({top:0,behavior:'smooth'});}));
