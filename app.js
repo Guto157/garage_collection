@@ -114,3 +114,17 @@ if(offline>0){state.money+=offline;setTimeout(()=>notify('Enquanto esteve fora, 
 save();render();
 setInterval(()=>{const gain=income()/60;state.money+=gain;document.querySelector('#money').textContent=fmt(state.money);document.querySelectorAll('[data-buy]').forEach(b=>{const c=getCar(b.dataset.buy);b.disabled=state.money<c.price});document.querySelectorAll('[data-upgrade]').forEach(b=>{const u=upgrades.find(x=>x.kind===b.dataset.upgrade);const lv=x=>x==='click'?state.clickLevel:x==='income'?state.incomeLevel:state.networkLevel; b.disabled=state.money<Math.floor(u.base*Math.pow(1.85,lv(u.kind)))});},1000);
 setInterval(save,10000);
+
+
+// Bloqueia o menu nativo do navegador em qualquer pressão prolongada na área do carro.
+document.addEventListener('contextmenu',event=>{
+ const target=event.target;
+ if(target instanceof Element && target.closest('.scene-wrap')){
+  event.preventDefault();
+  event.stopImmediatePropagation();
+ }
+},true);
+document.addEventListener('selectstart',event=>{
+ const target=event.target;
+ if(target instanceof Element && target.closest('.scene-wrap')) event.preventDefault();
+},true);
