@@ -153,7 +153,7 @@ function checkHeroCarImage(car){
 
 
 const fmt=n=>'R$ '+Math.floor(n).toLocaleString('pt-BR');
-const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{},totalEarned:0,totalClicks:0,packsOpened:0,achievementClaims:{},albumPageClaims:{},freePacks:{basic:0,premium:0,elite:0}};
+const defaultState={money:250,owned:['city'],selected:'city',selectedManually:false,clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{},totalEarned:0,totalClicks:0,packsOpened:0,achievementClaims:{},albumPageClaims:{},freePacks:{basic:0,premium:0,elite:0}};
 let state={...defaultState};
 try{const raw=localStorage.getItem(key);if(raw){const parsed=JSON.parse(raw);state={...defaultState,...parsed};}}catch(e){console.warn('Save inválido, iniciando novo jogo',e)}
 // Protege os níveis contra valores inválidos gravados em versões anteriores.
@@ -165,7 +165,11 @@ state.albumPageClaims=state.albumPageClaims&&typeof state.albumPageClaims==='obj
 state.freePacks={...defaultState.freePacks,...(state.freePacks&&typeof state.freePacks==='object'?state.freePacks:{})};
 for(const type of ['basic','premium','elite']){const value=Number(state.freePacks[type]);state.freePacks[type]=Number.isFinite(value)&&value>0?Math.floor(value):0;}
 state.owned=[...new Set(['city',...(Array.isArray(state.owned)?state.owned:[])])].filter(id=>cars.some(c=>c.id===id));
-if(!cars.some(c=>c.id===state.selected&&state.owned.includes(c.id)))state.selected=state.owned[0];
+state.selectedManually=state.selectedManually===true;
+const rarityOrder={common:0,uncommon:1,rare:2,epic:3,legendary:4,mythic:5,special:6};
+const highestOwnedCar=()=>state.owned.map(id=>getCar(id)).sort((a,b)=>(rarityOrder[b.tier]??-1)-(rarityOrder[a.tier]??-1))[0]||cars[0];
+if(!cars.some(c=>c.id===state.selected&&state.owned.includes(c.id)))state.selected=highestOwnedCar().id;
+if(!state.selectedManually)state.selected=highestOwnedCar().id;
 const incomeBase=()=>cars.filter(c=>state.owned.includes(c.id)).reduce((sum,c)=>sum+c.income,0);
 const income=()=>incomeBase()*(1+state.incomeLevel*.65+state.networkLevel*1.4);
 const clickPower=()=>15*Math.pow(1.5,state.clickLevel);
@@ -288,6 +292,7 @@ function renderAlbum(){
  }
 }
 function render(){
+if(!state.selectedManually)state.selected=highestOwnedCar().id;
 const car=getCar(state.selected);
 document.querySelector('#money').textContent=fmt(state.money);
 document.querySelector('#owned-count').textContent=state.owned.length;
@@ -312,7 +317,7 @@ document.querySelector('#garage-list').innerHTML=state.owned.map(id=>{const c=ge
 renderDealership();
 renderAlbum();
 renderUpgrades();renderMission();renderDaily();
-document.querySelectorAll('[data-select]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.select;save();render()});
+document.querySelectorAll('[data-select]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.select;state.selectedManually=true;save();render()});
 
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(b.dataset.buy));
 renderPackButtons();
@@ -469,7 +474,7 @@ function openPack(type,free=false,resultTarget='#pack-result'){
  }
  const duplicate=state.owned.includes(car.id);
  if(duplicate)state.cardCopies[car.id]=(Number(state.cardCopies[car.id])||0)+1;else{state.owned.push(car.id);albumNewVehicleId=car.id;}
- state.selected=car.id;save();render();
+ save();render();
  const result=document.querySelector(resultTarget);if(result){result.hidden=false;
  result.innerHTML='<div class="pack-result-heading">'+(free?'RECOMPENSA ABERTA':'PACOTE ABERTO')+'</div><div class="pack-result-card">'+(!duplicate?'<span class="pack-result-new">NOVO</span>':'')+'<img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta adicionada ao álbum.':'Nova carta desbloqueada e adicionada ao álbum!')+'</p></div></div>';}
  if(car.tier==='special')showSpecialReveal(car,duplicate);
@@ -490,7 +495,7 @@ document.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>upgrade(b.d
 }
 function renderDaily(){const today=new Date().toLocaleDateString('en-CA');const btn=document.querySelector('#daily-button');const done=state.lastDaily===today;btn.disabled=done;btn.textContent=done?'RECOMPENSA RESGATADA':'RESGATAR R$ 500';}
 function renderMission(){const done=state.owned.length>=2;const text=document.querySelector('#mission-text'),btn=document.querySelector('#mission-button');if(state.missionClaimed){text.textContent='Missão concluída. Novos desafios em breve.';btn.textContent='CONCLUÍDA';btn.disabled=true}else if(done){text.textContent='Você já tem mais de um carro. Resgate sua recompensa!';btn.textContent='RESGATAR R$ 1.000';btn.disabled=false}else{text.textContent='Compre seu segundo veículo para liberar R$ 1.000 de recompensa.';btn.textContent='CARRO NECESSÁRIO';btn.disabled=true}}
-function buy(id){const c=getCar(id);if(state.owned.includes(id))return;if(state.money<c.price){notify('Dinheiro insuficiente. Trabalhe ou aguarde a renda da garagem.');return}state.money-=c.price;state.owned.push(id);state.selected=id;albumNewVehicleId=id;save();render();notify(c.name+' entrou para sua coleção!')}
+function buy(id){const c=getCar(id);if(state.owned.includes(id))return;if(state.money<c.price){notify('Dinheiro insuficiente. Trabalhe ou aguarde a renda da garagem.');return}state.money-=c.price;state.owned.push(id);albumNewVehicleId=id;save();render();notify(c.name+' entrou para sua coleção!')}
 function upgrade(kind){const u=upgrades.find(x=>x.kind===kind);const level=kind==='click'?state.clickLevel:kind==='income'?state.incomeLevel:state.networkLevel;const cost=Math.floor(u.base*Math.pow(1.85,level));if(state.money<cost){notify('Saldo insuficiente para essa melhoria.');return}state.money-=cost;if(kind==='click')state.clickLevel++;else if(kind==='income')state.incomeLevel++;else state.networkLevel++;save();render();notify('Melhoria adquirida! Seus ganhos aumentaram.')}
 let saveClickTimer=null;
 let cashRefreshQueued=false;
@@ -554,7 +559,7 @@ resetConfirm.querySelector('.reset-continue').addEventListener('click',()=>{
   if(copies>0)specialCopies[id]=copies;
  }
  try{localStorage.removeItem(key);localStorage.removeItem(activeTabKey);localStorage.removeItem(key+'_openRarity');}catch(e){}
- state={...defaultState,money:defaultState.money,owned:['city',...specialIds],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:specialCopies};
+ state={...defaultState,money:defaultState.money,owned:['city',...specialIds],selected:'city',selectedManually:false,clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:specialCopies};
  openDealershipRarity=null;albumRarity='common';albumNewVehicleId=null;
  const packResult=document.querySelector('#pack-result');if(packResult)packResult.hidden=true;
  save();
