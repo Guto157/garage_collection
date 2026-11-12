@@ -163,3 +163,21 @@ img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user
 .album-sticker.just-added{animation:albumStickerIn .8s cubic-bezier(.2,.9,.25,1.2) both}
 @keyframes albumStickerIn{0%{opacity:0;transform:translateY(-28px) rotate(-9deg) scale(1.16)}65%{opacity:1;transform:translateY(3px) rotate(2deg) scale(.98)}100%{opacity:1;transform:rotate(-.35deg) scale(1)}}
 @media(max-width:700px){.album-page{margin:8px;padding:12px}.album-sticker-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.album-sticker,.album-empty-slot{min-height:155px}.album-sticker-photo{height:91px}.album-rarity-tabs{gap:6px}.album-rarity-tab{min-width:76px;flex:0 0 auto}.album-masthead{padding:15px 10px}.album-page-stats{font-size:7px}}
+
+
+/* Contorno de néon da imagem principal, conforme a raridade do carro */
+.scene-wrap::after{content:"";position:absolute;inset:7px;border:2px solid transparent;border-radius:8px;pointer-events:none;z-index:3;transition:box-shadow .25s,border-color .25s;box-shadow:inset 0 0 12px var(--hero-glow),0 0 13px var(--hero-glow)}
+.scene-wrap.rarity-common{--hero-glow:#aeb9c5}
+.scene-wrap.rarity-common::after{border-color:#aeb9c5aa;box-shadow:inset 0 0 9px #aeb9c522,0 0 10px #aeb9c544}
+.scene-wrap.rarity-uncommon{--hero-glow:#65c98a}
+.scene-wrap.rarity-uncommon::after{border-color:#65c98acc;box-shadow:inset 0 0 12px #65c98a33,0 0 15px #65c98a99}
+.scene-wrap.rarity-rare{--hero-glow:#62aaff}
+.scene-wrap.rarity-rare::after{border-color:#62aaffdd;box-shadow:inset 0 0 13px #62aaff44,0 0 17px #62aaffbb}
+.scene-wrap.rarity-epic{--hero-glow:#b783f0}
+.scene-wrap.rarity-epic::after{border-color:#b783f0ee;box-shadow:inset 0 0 15px #a66be955,0 0 19px #a66be9cc}
+.scene-wrap.rarity-legendary{--hero-glow:#f2b94d}
+.scene-wrap.rarity-legendary::after{border-color:#f2b94dee;box-shadow:inset 0 0 17px #f2b94d55,0 0 22px #f2b94dcc}
+.scene-wrap.rarity-mythic::after{border-color:#ff4545;box-shadow:inset 0 0 18px #ff202066,0 0 24px #ff2020cc;animation:heroMythicNeon 2.8s ease-in-out infinite alternate}
+@keyframes heroMythicNeon{from{box-shadow:inset 0 0 10px #ff202033,0 0 13px #ff202077}to{box-shadow:inset 0 0 22px #ff202099,0 0 30px #ff2020ee}}
+.scene-wrap.rarity-special::after{inset:5px;border:4px solid transparent;border-radius:9px;background:linear-gradient(transparent,transparent) padding-box,conic-gradient(from 0deg,#fff,#ff3030,#ffb52e,#fff9a8,#42f36b,#c7fff1,#24e8ed,#397dff,#d7c4ff,#b64dff,#ff43c8,#fff) border-box;box-shadow:0 0 12px #fff9,0 0 25px #9d5cffcc,0 0 40px #22d9e988;animation:specialRainbowGlow 3.8s linear infinite}
+@media(prefers-reduced-motion:reduce){.scene-wrap.rarity-mythic::after,.scene-wrap.rarity-special::after{animation:none}}
