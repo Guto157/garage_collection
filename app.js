@@ -39,8 +39,8 @@ document.querySelector('#money').textContent=fmt(state.money);
 document.querySelector('#owned-count').textContent=state.owned.length;
 document.querySelector('#income').textContent=fmt(income());
 document.querySelector('#click-power').textContent=fmt(clickPower());
-document.querySelector('#hero-car').src=car.image;
-document.querySelector('#hero-car').alt=car.name;
+document.querySelector('#hero-car').style.backgroundImage='url("'+car.image+'")';
+document.querySelector('#hero-car').setAttribute('aria-label',car.name);
 document.querySelector('#car-name').textContent=car.name;
 document.querySelector('#car-description').textContent=car.description;
 document.querySelector('#car-class').textContent=car.class;
@@ -104,15 +104,15 @@ setInterval(()=>{const gain=income()/60;state.money+=gain;document.querySelector
 setInterval(save,10000);
 
 
-// Bloqueia o menu nativo do navegador em qualquer pressão prolongada na área do carro.
+// Impede menus de contexto e seleção em qualquer área visual do jogo.
 document.addEventListener('contextmenu',event=>{
  const target=event.target;
- if(target instanceof Element && target.closest('.scene-wrap')){
+ if(target instanceof Element && target.closest('.app-shell')){
   event.preventDefault();
   event.stopImmediatePropagation();
  }
 },true);
 document.addEventListener('selectstart',event=>{
  const target=event.target;
- if(target instanceof Element && target.closest('.scene-wrap')) event.preventDefault();
+ if(target instanceof Element && target.closest('.app-shell')) event.preventDefault();
 },true);
