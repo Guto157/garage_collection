@@ -63,7 +63,13 @@ document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(b.dataset.b
 }
 function renderUpgrades(){
 const levels={click:state.clickLevel,income:state.incomeLevel,network:state.networkLevel};
-document.querySelector('#upgrade-list').innerHTML=upgrades.map(u=>{const lv=levels[u.kind],cost=Math.floor(u.base*Math.pow(1.85,lv));return '<article class="upgrade-card"><h3>'+u.name+'</h3><p>'+u.desc+'</p><div class="level">NÍVEL '+lv+'</div><button class="buy-button" data-upgrade="'+u.kind+'" '+(state.money<cost?'disabled':'')+'>MELHORAR · '+fmt(cost)+'</button></article>'}).join('');
+document.querySelector('#upgrade-list').innerHTML=upgrades.map(u=>{
+ const lv=levels[u.kind],cost=Math.floor(u.base*Math.pow(1.85,lv));
+ const current=u.kind==='click'?clickPower():income();
+ const next=u.kind==='click'?15*Math.pow(1.5,state.clickLevel+1):incomeBase()*(1+(state.incomeLevel+(u.kind==='income'?1:0))*.65+(state.networkLevel+(u.kind==='network'?1:0))*1.4);
+ const unit=u.kind==='click'?'por toque':'por minuto';
+ return '<article class="upgrade-card"><h3>'+u.name+'</h3><p>'+u.desc+'</p><div class="level">NÍVEL '+lv+' → '+(lv+1)+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 13px"><div style="padding:9px;background:#0b111a;border:1px solid #263142;border-radius:6px"><small style="display:block;color:#8d9aab;font-size:8px;letter-spacing:1px;margin-bottom:5px">VALOR ATUAL</small><strong style="font-size:12px;color:#dce4ed">'+fmt(current)+'</strong><small style="display:block;color:#8d9aab;font-size:8px;margin-top:3px">'+unit+'</small></div><div style="padding:9px;background:#132019;border:1px solid #31543e;border-radius:6px"><small style="display:block;color:#83d6a1;font-size:8px;letter-spacing:1px;margin-bottom:5px">APÓS MELHORIA</small><strong style="font-size:12px;color:#83d6a1">'+fmt(next)+'</strong><small style="display:block;color:#83d6a1;font-size:8px;margin-top:3px">'+unit+'</small></div></div><button class="buy-button" data-upgrade="'+u.kind+'" '+(state.money<cost?'disabled':'')+'>MELHORAR · '+fmt(cost)+'</button></article>';
+}).join('');
 document.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>upgrade(b.dataset.upgrade));
 }
 function renderDaily(){const today=new Date().toLocaleDateString('en-CA');const btn=document.querySelector('#daily-button');const done=state.lastDaily===today;btn.disabled=done;btn.textContent=done?'RECOMPENSA RESGATADA':'RESGATAR R$ 500';}
