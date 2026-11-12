@@ -94,10 +94,12 @@ function earnFromCar(event){
  saveClickTimer=setTimeout(()=>{saveClickTimer=null;save()},250);
 }
 const featuredCar=document.querySelector('.scene-wrap');
-featuredCar.addEventListener('click',earnFromCar);
-featuredCar.addEventListener('keydown',event=>{
- if(event.key==='Enter'||event.key===' '){event.preventDefault();earnFromCar();}
-});
+if(featuredCar){
+ featuredCar.addEventListener('click',event=>{
+  event.preventDefault();
+  earnFromCar(event);
+ });
+}
 document.querySelector('#daily-button').onclick=()=>{const today=new Date().toLocaleDateString('en-CA');if(state.lastDaily===today)return;state.lastDaily=today;state.money+=500;save();render();notify('Bônus diário de R$ 500 resgatado!')};
 document.querySelector('#mission-button').onclick=()=>{if(state.owned.length<2||state.missionClaimed)return;state.money+=1000;state.missionClaimed=true;save();render();notify('Missão concluída: +R$ 1.000!')};
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab+'-view'))});
