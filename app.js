@@ -420,11 +420,34 @@ const resetProgressButton=document.createElement('button');
 resetProgressButton.type='button';
 resetProgressButton.innerHTML='<span>↻</span><span><strong>Reiniciar progresso</strong><small>Apagar toda a sua evolução</small></span>';
 sideMenu.insertBefore(resetProgressButton,sideMenu.querySelector('.side-menu-note'));
+const resetConfirmStyle=document.createElement('style');
+resetConfirmStyle.textContent='.reset-confirm-overlay{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(3,7,13,.88);backdrop-filter:blur(7px)}.reset-confirm-overlay[hidden]{display:none}.reset-confirm-panel{width:min(100%,390px);padding:25px 22px;border:1px solid #39485d;border-radius:16px;background:linear-gradient(155deg,#182333,#0b111b);box-shadow:0 22px 70px #000b;text-align:center;color:#edf3fb}.reset-confirm-icon{font-size:34px;color:#f2b84b;margin-bottom:8px}.reset-confirm-panel h2{margin:0 0 10px;font-size:22px}.reset-confirm-panel p{margin:0 0 13px;color:#b7c3d2;font-size:14px;line-height:1.55}.reset-confirm-panel .preserve-note{padding:10px 12px;margin:0 0 18px;border:1px solid #3d674f;border-radius:9px;background:#12251b;color:#a8e6bc;font-size:12px}.reset-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.reset-confirm-actions button{min-height:44px;border-radius:8px;font-weight:800;cursor:pointer}.reset-cancel{border:1px solid #45546a;background:#202d3d;color:#e5edf7}.reset-continue{border:1px solid #a84b4b;background:#7e2929;color:#fff}';
+document.head.appendChild(resetConfirmStyle);
+const resetConfirm=document.createElement('div');
+resetConfirm.className='reset-confirm-overlay';
+resetConfirm.hidden=true;
+resetConfirm.innerHTML='<div class="reset-confirm-panel" role="dialog" aria-modal="true" aria-labelledby="reset-confirm-title"><div class="reset-confirm-icon">⚠</div><h2 id="reset-confirm-title">Reiniciar progresso?</h2><p>Todo o dinheiro, veículos comuns e raros, melhorias, bônus e missões serão reiniciados.</p><div class="preserve-note">★ Suas cartas SPECIAL conquistadas e suas cópias serão mantidas.</div><div class="reset-confirm-actions"><button type="button" class="reset-cancel">CANCELAR</button><button type="button" class="reset-continue">CONTINUAR</button></div></div>';
+document.body.appendChild(resetConfirm);
+function closeResetConfirm(){resetConfirm.hidden=true;}
+resetConfirm.querySelector('.reset-cancel').addEventListener('click',closeResetConfirm);
+resetConfirm.addEventListener('click',event=>{if(event.target===resetConfirm)closeResetConfirm();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!resetConfirm.hidden)closeResetConfirm();});
 resetProgressButton.addEventListener('click',()=>{
- if(!window.confirm('Tem certeza que deseja apagar TODO o seu progresso? Dinheiro, carros, cartas, cópias e melhorias serão perdidos permanentemente.'))return;
+ resetConfirm.hidden=false;
+ resetConfirm.querySelector('.reset-cancel').focus();
+});
+resetConfirm.querySelector('.reset-continue').addEventListener('click',()=>{
+ closeResetConfirm();
+ if(!window.confirm('Confirmação final: deseja reiniciar o progresso? Suas cartas SPECIAL conquistadas e respectivas cópias serão preservadas.'))return;
  if(saveClickTimer){clearTimeout(saveClickTimer);saveClickTimer=null;}
+ const specialIds=cars.filter(car=>car.tier==='special'&&state.owned.includes(car.id)).map(car=>car.id);
+ const specialCopies={};
+ for(const id of specialIds){
+  const copies=Math.max(0,Math.floor(Number(state.cardCopies[id])||0));
+  if(copies>0)specialCopies[id]=copies;
+ }
  try{localStorage.removeItem(key);localStorage.removeItem(activeTabKey);localStorage.removeItem(key+'_openRarity');}catch(e){}
- state={...defaultState,money:defaultState.money,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{}};
+ state={...defaultState,money:defaultState.money,owned:['city',...specialIds],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:specialCopies};
  openDealershipRarity=null;albumRarity='common';albumNewVehicleId=null;
  const packResult=document.querySelector('#pack-result');if(packResult)packResult.hidden=true;
  save();
@@ -434,7 +457,7 @@ resetProgressButton.addEventListener('click',()=>{
  renderMission();
  activateTab('garage',false);
  closeSideMenu();
- notify('Progresso reiniciado. Sua nova garagem está pronta!');
+ notify(specialIds.length?'Progresso reiniciado. Suas cartas SPECIAL foram preservadas!':'Progresso reiniciado. Sua nova garagem está pronta!');
 });
 menuToggle.addEventListener('click',()=>{const open=!sideMenu.classList.contains('open');sideMenu.classList.toggle('open',open);menuBackdrop.classList.toggle('show',open);menuToggle.setAttribute('aria-expanded',String(open));sideMenu.setAttribute('aria-hidden',String(!open));});
 menuBackdrop.addEventListener('click',closeSideMenu);
