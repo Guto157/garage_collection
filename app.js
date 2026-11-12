@@ -155,6 +155,32 @@ function save(){state.lastSave=Date.now();try{localStorage.setItem(key,JSON.stri
 function notify(msg){const el=document.querySelector('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
 function getCar(id){return cars.find(c=>c.id===id)||cars[0]}
 function card(c){const owned=state.owned.includes(c.id);return '<article class="vehicle-card '+(!owned?'locked':'')+'"><div class="vehicle-art"><img data-car-id="'+c.id+'" loading="lazy" src="'+c.image+'" alt="'+c.name+'"></div><div class="vehicle-body"><span class="rarity '+c.tier+'">'+c.rarity+'</span><h3>'+c.name+'</h3><p>'+c.class+' · '+fmt(c.income)+'/min</p><div class="vehicle-meta"><span>PREÇO</span><strong>'+fmt(c.price)+'</strong></div>'+(owned?'<span class="owned-tag">✓ NA SUA COLEÇÃO</span>':'<button class="buy-button" data-buy="'+c.id+'" '+(state.money<c.price?'disabled':'')+'>COMPRAR VEÍCULO</button>')+'</div></article>'}
+let openDealershipRarity=null;
+const rarityGroups=[
+ {tier:'common',label:'COMUM',note:'Primeiros clássicos da garagem'},
+ {tier:'uncommon',label:'INCOMUM',note:'Esportivos especiais'},
+ {tier:'rare',label:'RARO',note:'Máquinas de alto desempenho'},
+ {tier:'epic',label:'ÉPICO',note:'Superesportivos lendários'},
+ {tier:'legendary',label:'LENDÁRIO',note:'Ícones de coleção'},
+ {tier:'mythic',label:'MÍTICO',note:'Hipercarros extraordinários'},
+ {tier:'special',label:'SPECIAL',note:'Peças históricas e exemplares únicos'}
+];
+function renderDealership(){
+ const container=document.querySelector('#dealership-list');
+ container.innerHTML=rarityGroups.map(group=>{
+  const list=cars.filter(c=>c.id!=='city'&&c.tier===group.tier);
+  if(!list.length)return '';
+  const opened=openDealershipRarity===group.tier;
+  return '<section class="rarity-group"><button type="button" class="rarity-toggle" data-rarity="'+group.tier+'" aria-expanded="'+opened+'"><span class="rarity '+group.tier+'">'+group.label+'</span><span class="rarity-group-copy"><strong>'+group.note+'</strong><small>'+list.length+' veículos disponíveis</small></span><span class="rarity-chevron">'+(opened?'−':'+')+'</span></button><div class="rarity-cars" '+(opened?'':'hidden')+'>'+list.map(card).join('')+'</div></section>';
+ }).join('');
+ container.querySelectorAll('[data-rarity]').forEach(button=>button.onclick=()=>{
+  openDealershipRarity=openDealershipRarity===button.dataset.rarity?null:button.dataset.rarity;
+  renderDealership();
+ });
+ container.querySelectorAll('[data-buy]').forEach(button=>button.onclick=()=>buy(button.dataset.buy));
+}
+
+
 function render(){
 const car=getCar(state.selected);
 document.querySelector('#money').textContent=fmt(state.money);
@@ -180,31 +206,6 @@ document.querySelector('#collection-progress').textContent=state.owned.length+' 
 document.querySelector('#progress-fill').style.width=(state.owned.length/cars.length*100)+'%';
 renderUpgrades();renderMission();renderDaily();
 document.querySelectorAll('[data-select]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.select;save();render()});
-
-let openDealershipRarity=null;
-const rarityGroups=[
- {tier:'common',label:'COMUM',note:'Primeiros clássicos da garagem'},
- {tier:'uncommon',label:'INCOMUM',note:'Esportivos especiais'},
- {tier:'rare',label:'RARO',note:'Máquinas de alto desempenho'},
- {tier:'epic',label:'ÉPICO',note:'Superesportivos lendários'},
- {tier:'legendary',label:'LENDÁRIO',note:'Ícones de coleção'},
- {tier:'mythic',label:'MÍTICO',note:'Hipercarros extraordinários'},
- {tier:'special',label:'SPECIAL',note:'Peças históricas e exemplares únicos'}
-];
-function renderDealership(){
- const container=document.querySelector('#dealership-list');
- container.innerHTML=rarityGroups.map(group=>{
-  const list=cars.filter(c=>c.id!=='city'&&c.tier===group.tier);
-  if(!list.length)return '';
-  const opened=openDealershipRarity===group.tier;
-  return '<section class="rarity-group"><button type="button" class="rarity-toggle" data-rarity="'+group.tier+'" aria-expanded="'+opened+'"><span class="rarity '+group.tier+'">'+group.label+'</span><span class="rarity-group-copy"><strong>'+group.note+'</strong><small>'+list.length+' veículos disponíveis</small></span><span class="rarity-chevron">'+(opened?'−':'+')+'</span></button><div class="rarity-cars" '+(opened?'':'hidden')+'>'+list.map(card).join('')+'</div></section>';
- }).join('');
- container.querySelectorAll('[data-rarity]').forEach(button=>button.onclick=()=>{
-  openDealershipRarity=openDealershipRarity===button.dataset.rarity?null:button.dataset.rarity;
-  renderDealership();
- });
- container.querySelectorAll('[data-buy]').forEach(button=>button.onclick=()=>buy(button.dataset.buy));
-}
 
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(b.dataset.buy));
 }
