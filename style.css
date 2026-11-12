@@ -288,3 +288,9 @@ img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user
 .achievement-completed-arrow{font-size:22px;color:#83d6a1;transition:transform .2s;}
 .achievement-completed[open] .achievement-completed-arrow{transform:rotate(180deg);}
 .achievement-completed .achievement-grid{padding:0 12px 12px;}
+
+
+/* Ajustes da loja: destaque para cartas novas e topo livre */
+body.shop-open .hero{display:none;}
+.pack-result-card{position:relative;}
+.pack-result-new{position:absolute;top:-8px;right:-8px;z-index:2;padding:6px 10px;border:1px solid #8fe0ad;border-radius:6px;background:linear-gradient(135deg,#1d9b62,#116b49);color:#fff;font:900 10px 'DM Sans';letter-spacing:1px;box-shadow:0 3px 12px #0006,0 0 12px #54d68b66;}

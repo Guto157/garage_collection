@@ -471,7 +471,7 @@ function openPack(type,free=false,resultTarget='#pack-result'){
  if(duplicate)state.cardCopies[car.id]=(Number(state.cardCopies[car.id])||0)+1;else{state.owned.push(car.id);albumNewVehicleId=car.id;}
  state.selected=car.id;save();render();
  const result=document.querySelector(resultTarget);if(result){result.hidden=false;
- result.innerHTML='<div class="pack-result-heading">'+(free?'RECOMPENSA ABERTA':'PACOTE ABERTO')+'</div><div class="pack-result-card"><img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta adicionada ao álbum.':'Nova carta desbloqueada e adicionada ao álbum!')+'</p></div></div>';}
+ result.innerHTML='<div class="pack-result-heading">'+(free?'RECOMPENSA ABERTA':'PACOTE ABERTO')+'</div><div class="pack-result-card">'+(!duplicate?'<span class="pack-result-new">NOVO</span>':'')+'<img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta adicionada ao álbum.':'Nova carta desbloqueada e adicionada ao álbum!')+'</p></div></div>';}
  if(car.tier==='special')showSpecialReveal(car,duplicate);
  else if(result)result.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
@@ -568,10 +568,11 @@ resetConfirm.querySelector('.reset-continue').addEventListener('click',()=>{
 });
 menuToggle.addEventListener('click',()=>{const open=!sideMenu.classList.contains('open');sideMenu.classList.toggle('open',open);menuBackdrop.classList.toggle('show',open);menuToggle.setAttribute('aria-expanded',String(open));sideMenu.setAttribute('aria-hidden',String(!open));});
 menuBackdrop.addEventListener('click',closeSideMenu);
-sideMenu.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===button.dataset.page));document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));closeSideMenu();window.scrollTo({top:0,behavior:'smooth'});}));
+sideMenu.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===button.dataset.page));document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));document.body.classList.toggle('shop-open',button.dataset.page==='shop-view');closeSideMenu();window.scrollTo({top:0,behavior:'smooth'});}));
 
 const activeTabKey=key+'_activeTab';
 function activateTab(tabId,remember=true){
+ document.body.classList.remove('shop-open');
  const valid=['garage','dealership','collection','upgrades','achievements'];
  const selected=valid.includes(tabId)?tabId:'garage';
  document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab===selected));
