@@ -239,7 +239,20 @@ function openPack(type){
  state.money-=pack.price;
  const roll=Math.random()*100;let car;
  if(roll<pack.special){const specials=cars.filter(c=>c.tier==='special');car=specials[Math.floor(Math.random()*specials.length)];}
- else{const entries=Object.entries(pack.weights),total=entries.reduce((sum,item)=>sum+item[1],0);let pick=Math.random()*total,tier=entries[0][0];for(const [name,weight] of entries){pick-=weight;if(pick<=0){tier=name;break;}}const pool=cars.filter(c=>c.tier===tier);car=pool[Math.floor(Math.random()*pool.length)];}
+ else{
+  // Pacotes comuns só sorteiam veículos já conquistados/desbloqueados.
+  // Os pesos dos níveis sem cartas disponíveis são redistribuídos
+  // proporcionalmente entre os níveis que o jogador já possui.
+  const available=Object.entries(pack.weights).map(([tier,weight])=>({
+   tier,weight,pool:cars.filter(c=>c.tier===tier&&state.owned.includes(c.id))
+  })).filter(entry=>entry.pool.length>0);
+  const total=available.reduce((sum,entry)=>sum+entry.weight,0);
+  let pick=Math.random()*total;
+  let selected=available[available.length-1];
+  for(const entry of available){pick-=entry.weight;if(pick<=0){selected=entry;break;}}
+  const pool=selected.pool;
+  car=pool[Math.floor(Math.random()*pool.length)];
+ }
  const duplicate=state.owned.includes(car.id);
  if(duplicate)state.cardCopies[car.id]=(Number(state.cardCopies[car.id])||0)+1;else state.owned.push(car.id);
  state.selected=car.id;save();render();
