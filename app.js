@@ -222,9 +222,9 @@ renderPackButtons();
 }
 
 const packOptions={
- basic:{price:500,weights:{common:65,uncommon:23,rare:8,epic:3,legendary:0.8,mythic:0.1995},special:0.0005},
- premium:{price:5000,weights:{common:35,uncommon:30,rare:20,epic:10,legendary:4,mythic:0.9995},special:0.0005},
- elite:{price:50000,weights:{common:10,uncommon:15,rare:25,epic:25,legendary:18,mythic:6.9995},special:0.0005}
+ basic:{price:500,weights:{common:65,uncommon:23,rare:8,epic:3,legendary:0.8,mythic:0.19998},special:0.00002},
+ premium:{price:5000,weights:{common:35,uncommon:30,rare:20,epic:10,legendary:4,mythic:0.99998},special:0.00002},
+ elite:{price:50000,weights:{common:10,uncommon:15,rare:25,epic:25,legendary:18,mythic:6.99998},special:0.00002}
 };
 function renderPackButtons(){document.querySelectorAll('[data-pack]').forEach(button=>{const pack=packOptions[button.dataset.pack];button.disabled=!pack||state.money<pack.price;});}
 function openPack(type){
