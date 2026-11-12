@@ -11,7 +11,7 @@ const cars=[
 const upgrades=[
 {id:'click',name:'Treinamento do colecionador',desc:'Aumenta o dinheiro recebido por toque.',base:500,kind:'click'},
 {id:'garage',name:'Garagem automatizada',desc:'Multiplica a renda gerada pelos seus veículos.',base:5000,kind:'income'},
-{id:'network',name:'Rede de investidores',desc:'Amplia ainda mais o rendimento da coleção.',base:25000,kind:'income2'}
+{id:'network',name:'Rede de investidores',desc:'Amplia ainda mais o rendimento da coleção.',base:25000,kind:'network'}
 ];
 const key='garageCollectionSave_v3';
 
