@@ -15,3 +15,19 @@
 /* Nenhuma imagem do jogo pode ser selecionada, arrastada ou aberta por pressão longa. */
 img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-user-drag:none!important;user-drag:none!important;pointer-events:none}
 .scene-wrap,.scene-wrap *{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important}
+
+
+/* Neon das cartas conforme a raridade */
+.vehicle-card{position:relative;isolation:isolate;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.vehicle-card::before{content:"";position:absolute;inset:-1px;border-radius:11px;padding:1px;pointer-events:none;z-index:-1;opacity:.9}
+.vehicle-card:has(.rarity.common){border-color:#8995a455;box-shadow:0 0 8px #aeb9c51a}
+.vehicle-card:has(.rarity.uncommon){border-color:#65c98a99;box-shadow:0 0 10px #65c98a30, inset 0 0 12px #65c98a0c}
+.vehicle-card:has(.rarity.rare){border-color:#62aaffbb;box-shadow:0 0 12px #62aaff45, inset 0 0 14px #62aaff10}
+.vehicle-card:has(.rarity.epic){border-color:#b783f0cc;box-shadow:0 0 14px #a66be955, inset 0 0 16px #a66be912}
+.vehicle-card:has(.rarity.legendary){border-color:#f2b94dcc;box-shadow:0 0 17px #f2b94d66, inset 0 0 18px #f2b94d18}
+.vehicle-card:has(.rarity.mythic){border-color:#ff6daecc;box-shadow:0 0 19px #ff5da877, inset 0 0 20px #ff5da81c;animation:mythicNeon 2.8s ease-in-out infinite alternate}
+.vehicle-card:hover{transform:translateY(-3px)}
+@keyframes mythicNeon{from{box-shadow:0 0 12px #ff5dae55,inset 0 0 12px #ff5dae12}to{box-shadow:0 0 23px #ff5daebb,inset 0 0 22px #ff5dae28}}
+.garage-car{transition:border-color .2s,box-shadow .2s}
+.garage-car:has(small:nth-of-type(1)){box-shadow:0 0 0 transparent}
+.garage-car.selected{box-shadow:0 0 12px #e8b45b45}
