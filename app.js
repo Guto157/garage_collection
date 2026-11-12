@@ -3,10 +3,10 @@ const cars=[
 {id:'porsche',name:'Porsche 911 Carrera',class:'Esportivo',rarity:'INCOMUM',tier:'uncommon',price:80000,income:50,description:'Um ícone das estradas, com design inconfundível.',image:'https://upload.wikimedia.org/wikipedia/commons/b/b5/Porsche_911_Carrera.jpg'},
 {id:'mercedes',name:'Mercedes-AMG GT',class:'Grand tourer',rarity:'RARO',tier:'rare',price:600000,income:300,description:'Elegância alemã com desempenho de pista.',image:'https://upload.wikimedia.org/wikipedia/commons/b/bf/MERCEDES-AMG_GT.jpg'},
 {id:'ferrari',name:'Ferrari 458 Italia',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:5000000,income:2200,description:'Um V8 italiano e linhas que marcaram época.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Ferrari458Italia.jpg/1280px-Ferrari458Italia.jpg'},
-{id:'lamborghini',name:'Lamborghini Aventador',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:40000000,income:16000,description:'Presença extrema e desempenho extraordinário.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Lamborghini_Aventador.jpg/1280px-Lamborghini_Aventador.jpg'},
-{id:'porschegt',name:'Porsche 911 GT2 RS',class:'Track-focused',rarity:'LENDÁRIO',tier:'legendary',price:300000000,income:120000,description:'Uma máquina de alto desempenho feita para a pista.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Porsche_911_GT2_RS.jpg/1280px-Porsche_911_GT2_RS.jpg'},
-{id:'mclaren',name:'McLaren 720S',class:'Hipercarro',rarity:'LENDÁRIO',tier:'legendary',price:2500000000,income:900000,description:'Tecnologia, leveza e aerodinâmica de outro nível.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/McLaren_720S.jpg/1280px-McLaren_720S.jpg'},
-{id:'bugatti',name:'Bugatti Chiron',class:'Hipercarro',rarity:'MÍTICO',tier:'mythic',price:20000000000,income:7000000,description:'O topo absoluto da engenharia automotiva.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/A_Bugatti_Chiron.jpg/1280px-A_Bugatti_Chiron.jpg'},
+{id:'lamborghini',name:'Lamborghini Aventador',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:40000000,income:16000,description:'Presença extrema e desempenho extraordinário.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Lamborghini_Aventador.jpg/1280px-Lamborghini_Aventador.jpg'},
+{id:'porschegt',name:'Porsche 911 GT2 RS',class:'Track-focused',rarity:'LENDÁRIO',tier:'legendary',price:300000000,income:120000,description:'Uma máquina de alto desempenho feita para a pista.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Porsche_911_GT2_RS.jpg/1280px-Porsche_911_GT2_RS.jpg'},
+{id:'mclaren',name:'McLaren 720S',class:'Hipercarro',rarity:'LENDÁRIO',tier:'legendary',price:2500000000,income:900000,description:'Tecnologia, leveza e aerodinâmica de outro nível.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/McLaren_720S.jpg/1280px-McLaren_720S.jpg'},
+{id:'bugatti',name:'Bugatti Chiron',class:'Hipercarro',rarity:'MÍTICO',tier:'mythic',price:20000000000,income:7000000,description:'O topo absoluto da engenharia automotiva.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/A_Bugatti_Chiron.jpg/1280px-A_Bugatti_Chiron.jpg'},
 {id:'special-300slr',name:'Mercedes-Benz 300 SLR Uhlenhaut Coupé',class:'Protótipo de competição · 1955',rarity:'SPECIAL',tier:'special',price:1000000000000000,income:300000000000,description:'Um dos apenas dois exemplares construídos. Recordista mundial de venda, arrematado por €135 milhões.',image:'https://commons.wikimedia.org/wiki/Special:FilePath/1955%20Mercedes-Benz%20300%20SLR%20Uhlenhaut%20Coupe%20%2C%20Mercedes%20Museum%20%2C%20Stuttgart%20%2C%20Germany%20Ank%20Kumar%20Infosys%20Limited%2003.jpg?width=1280'},
 {id:'special-w196r',name:'Mercedes-Benz W 196 R Stromlinienwagen',class:'Fórmula 1 histórico · 1954',rarity:'SPECIAL',tier:'special',price:850000000000000,income:255000000000,description:'A lendária Flecha de Prata de competição, pilotada na era de Juan Manuel Fangio.',image:'https://commons.wikimedia.org/wiki/Special:FilePath/1955%20Mercedes-Benz%20W196%20R%20Stromlinie%20Goodwood%2C%202009%20%2801%29.jpg?width=1280'},
 {id:'special-330lm',name:'Ferrari 330 LM / 250 GTO Scaglietti',class:'Competizione · 1962 · Chassi 3765 LM',rarity:'SPECIAL',tier:'special',price:800000000000000,income:240000000000,description:'Exemplar de competição com histórico em Le Mans, vendido por US$ 51,7 milhões em leilão.',image:'https://commons.wikimedia.org/wiki/Special:FilePath/1962%20Ferrari%20330%20LMB.jpg?width=1280'},
@@ -80,7 +80,64 @@ const key='garageCollectionSave_v3';
 
 /* Proteção visual: se o servidor de fotos falhar, nunca deixa o espaço em branco. */
 const carFallback='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 650"><defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#26384b"/><stop offset="1" stop-color="#090e16"/></linearGradient></defs><rect width="1200" height="650" fill="url(#g)"/><path d="M120 455h960l-35-105q-12-36-55-48l-150-45-110-105q-20-20-55-20H430q-45 0-70 35L250 350l-90 35q-40 15-40 70z" fill="#b78b4b" stroke="#f0c778" stroke-width="9"/><path d="M430 165h245l100 110H350z" fill="#182534" stroke="#d8b77c" stroke-width="8"/><circle cx="340" cy="465" r="75" fill="#080b12" stroke="#9ba8b7" stroke-width="18"/><circle cx="865" cy="465" r="75" fill="#080b12" stroke="#9ba8b7" stroke-width="18"/><text x="600" y="585" text-anchor="middle" fill="#dce4ed" font-family="Arial" font-size="25" letter-spacing="7">GARAGE COLLECTION</text></svg>');
-document.addEventListener('error',e=>{const img=e.target;if(img&&img.tagName==='IMG'&&!img.dataset.fallback){img.dataset.fallback='1';img.src=carFallback;img.style.objectFit='contain';img.style.padding='12px';}},true);
+
+const commonsImageRequests=new Map();
+async function findCommonsCarImage(car){
+ if(commonsImageRequests.has(car.id))return commonsImageRequests.get(car.id);
+ const task=(async()=>{
+  const query=encodeURIComponent('filetype:bitmap "'+car.name+'"');
+  const endpoint='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+query+'&gsrnamespace=6&gsrlimit=12&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*';
+  const response=await fetch(endpoint);
+  if(!response.ok)throw new Error('Falha ao consultar imagens');
+  const data=await response.json();
+  const pages=Object.values(data.query?.pages||{});
+  const usable=pages.filter(page=>{
+   const title=(page.title||'').toLowerCase();
+   return /\.(jpg|jpeg|png|webp)$/i.test(title)&&page.imageinfo?.[0];
+  });
+  if(!usable.length)return null;
+  const tokens=car.name.toLowerCase().split(/[^a-z0-9]+/).filter(word=>word.length>2);
+  usable.sort((a,b)=>{
+   const score=page=>tokens.reduce((sum,token)=>sum+((page.title||'').toLowerCase().includes(token)?1:0),0);
+   return score(b)-score(a);
+  });
+  return usable[0].imageinfo[0].thumburl||usable[0].imageinfo[0].url||null;
+ })();
+ commonsImageRequests.set(car.id,task);
+ return task;
+}
+function applyRecoveredCarImage(car,url){
+ if(!url)return false;
+ car.image=url;
+ document.querySelectorAll('img[data-car-id="'+car.id+'"]').forEach(image=>{image.dataset.fallback='1';image.src=url;});
+ if(state.selected===car.id){
+  document.querySelector('#hero-car').style.backgroundImage='url("'+url+'")';
+ }
+ return true;
+}
+document.addEventListener('error',event=>{
+ const img=event.target;
+ if(!img||img.tagName!=='IMG'||img.dataset.fallback)return;
+ img.dataset.fallback='1';
+ const car=cars.find(item=>item.id===img.dataset.carId);
+ if(car){
+  findCommonsCarImage(car).then(url=>{
+   if(!applyRecoveredCarImage(car,url)){img.src=carFallback;img.style.objectFit='contain';img.style.padding='12px';}
+  }).catch(()=>{img.src=carFallback;img.style.objectFit='contain';img.style.padding='12px';});
+ }else{img.src=carFallback;img.style.objectFit='contain';img.style.padding='12px';}
+},true);
+function checkHeroCarImage(car){
+ if(car._heroChecked)return;
+ car._heroChecked=true;
+ const probe=new Image();
+ probe.onerror=()=>{
+  findCommonsCarImage(car).then(url=>{
+   if(!applyRecoveredCarImage(car,url))document.querySelector('#hero-car').style.backgroundImage='url("'+carFallback+'")';
+  }).catch(()=>{document.querySelector('#hero-car').style.backgroundImage='url("'+carFallback+'")';});
+ };
+ probe.src=car.image;
+}
+
 
 const fmt=n=>'R$ '+Math.floor(n).toLocaleString('pt-BR');
 const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false};
@@ -97,7 +154,7 @@ let toastTimer;
 function save(){state.lastSave=Date.now();try{localStorage.setItem(key,JSON.stringify(state))}catch(e){console.warn('Não foi possível salvar',e)}}
 function notify(msg){const el=document.querySelector('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
 function getCar(id){return cars.find(c=>c.id===id)||cars[0]}
-function card(c){const owned=state.owned.includes(c.id);return '<article class="vehicle-card '+(!owned?'locked':'')+'"><div class="vehicle-art"><img loading="lazy" src="'+c.image+'" alt="'+c.name+'"></div><div class="vehicle-body"><span class="rarity '+c.tier+'">'+c.rarity+'</span><h3>'+c.name+'</h3><p>'+c.class+' · '+fmt(c.income)+'/min</p><div class="vehicle-meta"><span>PREÇO</span><strong>'+fmt(c.price)+'</strong></div>'+(owned?'<span class="owned-tag">✓ NA SUA COLEÇÃO</span>':'<button class="buy-button" data-buy="'+c.id+'" '+(state.money<c.price?'disabled':'')+'>COMPRAR VEÍCULO</button>')+'</div></article>'}
+function card(c){const owned=state.owned.includes(c.id);return '<article class="vehicle-card '+(!owned?'locked':'')+'"><div class="vehicle-art"><img data-car-id="'+c.id+'" loading="lazy" src="'+c.image+'" alt="'+c.name+'"></div><div class="vehicle-body"><span class="rarity '+c.tier+'">'+c.rarity+'</span><h3>'+c.name+'</h3><p>'+c.class+' · '+fmt(c.income)+'/min</p><div class="vehicle-meta"><span>PREÇO</span><strong>'+fmt(c.price)+'</strong></div>'+(owned?'<span class="owned-tag">✓ NA SUA COLEÇÃO</span>':'<button class="buy-button" data-buy="'+c.id+'" '+(state.money<c.price?'disabled':'')+'>COMPRAR VEÍCULO</button>')+'</div></article>'}
 function render(){
 const car=getCar(state.selected);
 document.querySelector('#money').textContent=fmt(state.money);
@@ -105,6 +162,7 @@ document.querySelector('#owned-count').textContent=state.owned.length;
 document.querySelector('#income').textContent=fmt(income());
 document.querySelector('#click-power').textContent=fmt(clickPower());
 document.querySelector('#hero-car').style.backgroundImage='url("'+car.image+'")';
+checkHeroCarImage(car);
 document.querySelector('#hero-car').setAttribute('aria-label',car.name);
 document.querySelector('#car-name').textContent=car.name;
 document.querySelector('#car-description').textContent=car.description;
@@ -115,13 +173,39 @@ document.querySelector('#car-rarity').textContent=car.rarity;
 document.querySelector('#car-rarity').className='rarity '+car.tier;
 document.querySelector('#car-index').textContent=String(state.owned.indexOf(car.id)+1).padStart(2,'0')+' / '+String(state.owned.length).padStart(2,'0');
 document.querySelector('#garage-total').textContent=state.owned.length+' veículos';
-document.querySelector('#garage-list').innerHTML=state.owned.map(id=>{const c=getCar(id);return '<button class="garage-car '+(id===state.selected?'selected':'')+'" data-select="'+id+'"><img src="'+c.image+'" alt=""><strong>'+c.name+'</strong><small>'+c.rarity+'</small></button>'}).join('');
-document.querySelector('#dealership-list').innerHTML=cars.filter(c=>c.id!=='city').map(card).join('');
+document.querySelector('#garage-list').innerHTML=state.owned.map(id=>{const c=getCar(id);return '<button class="garage-car '+(id===state.selected?'selected':'')+'" data-select="'+id+'"><img data-car-id="'+c.id+'" src="'+c.image+'" alt="'+c.name+'"><strong>'+c.name+'</strong><small>'+c.rarity+'</small></button>'}).join('');
+renderDealership();
 document.querySelector('#collection-list').innerHTML=cars.map(card).join('');
 document.querySelector('#collection-progress').textContent=state.owned.length+' / '+cars.length+' carros';
 document.querySelector('#progress-fill').style.width=(state.owned.length/cars.length*100)+'%';
 renderUpgrades();renderMission();renderDaily();
 document.querySelectorAll('[data-select]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.select;save();render()});
+
+let openDealershipRarity=null;
+const rarityGroups=[
+ {tier:'common',label:'COMUM',note:'Primeiros clássicos da garagem'},
+ {tier:'uncommon',label:'INCOMUM',note:'Esportivos especiais'},
+ {tier:'rare',label:'RARO',note:'Máquinas de alto desempenho'},
+ {tier:'epic',label:'ÉPICO',note:'Superesportivos lendários'},
+ {tier:'legendary',label:'LENDÁRIO',note:'Ícones de coleção'},
+ {tier:'mythic',label:'MÍTICO',note:'Hipercarros extraordinários'},
+ {tier:'special',label:'SPECIAL',note:'Peças históricas e exemplares únicos'}
+];
+function renderDealership(){
+ const container=document.querySelector('#dealership-list');
+ container.innerHTML=rarityGroups.map(group=>{
+  const list=cars.filter(c=>c.id!=='city'&&c.tier===group.tier);
+  if(!list.length)return '';
+  const opened=openDealershipRarity===group.tier;
+  return '<section class="rarity-group"><button type="button" class="rarity-toggle" data-rarity="'+group.tier+'" aria-expanded="'+opened+'"><span class="rarity '+group.tier+'">'+group.label+'</span><span class="rarity-group-copy"><strong>'+group.note+'</strong><small>'+list.length+' veículos disponíveis</small></span><span class="rarity-chevron">'+(opened?'−':'+')+'</span></button><div class="rarity-cars" '+(opened?'':'hidden')+'>'+list.map(card).join('')+'</div></section>';
+ }).join('');
+ container.querySelectorAll('[data-rarity]').forEach(button=>button.onclick=()=>{
+  openDealershipRarity=openDealershipRarity===button.dataset.rarity?null:button.dataset.rarity;
+  renderDealership();
+ });
+ container.querySelectorAll('[data-buy]').forEach(button=>button.onclick=()=>buy(button.dataset.buy));
+}
+
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(b.dataset.buy));
 }
 function renderUpgrades(){

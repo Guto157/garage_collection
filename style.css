@@ -39,3 +39,18 @@ img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user
 @keyframes specialBadgeFlow{from{background-position:0% 50%}to{background-position:250% 50%}}
 .vehicle-card:has(.rarity.special) .vehicle-body h3{text-shadow:0 0 10px #8a74ff55}
 .rarity.special{color:#fff;border:1px solid #ffffff55}
+
+/* Concessionária organizada por raridade, com categorias expansíveis */
+#dealership-list{display:flex;flex-direction:column;gap:12px}
+.rarity-group{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#0e141e}
+.rarity-toggle{width:100%;display:flex;align-items:center;gap:13px;padding:15px 16px;border:0;background:linear-gradient(100deg,#182231,#101721);color:var(--text);text-align:left;cursor:pointer}
+.rarity-toggle>.rarity{min-width:94px;text-align:center}
+.rarity-group-copy{display:flex;flex:1;flex-direction:column;gap:4px}
+.rarity-group-copy strong{font-size:11px;font-weight:700}
+.rarity-group-copy small{font-size:9px;color:var(--muted)}
+.rarity-chevron{width:28px;height:28px;display:grid;place-items:center;border:1px solid #ffffff24;border-radius:50%;font-size:19px;color:var(--gold)}
+.rarity-cars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;padding:14px;border-top:1px solid var(--line)}
+.rarity-cars[hidden]{display:none}
+.rarity.special{background:linear-gradient(100deg,#ff4242,#ffb52e,#e5e83b,#38dc77,#25d7e8,#5275ff,#c35cff,#ff4ba9);color:#fff;text-shadow:0 1px 5px #000}
+@media(max-width:700px){.rarity-cars{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:10px}}
+@media(max-width:380px){.rarity-cars{grid-template-columns:1fr}}

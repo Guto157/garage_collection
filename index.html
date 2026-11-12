@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080b12"><title>Garage Collection</title><link rel="stylesheet" href="style.css?v=20261112-3"><style>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080b12"><title>Garage Collection</title><link rel="stylesheet" href="style.css?v=20261112-4"><style>
 .click-gain-float{position:absolute;z-index:6;top:52px;right:22px;pointer-events:none;white-space:nowrap;color:#a8f0bd;font:800 20px 'Barlow Condensed';text-shadow:0 2px 8px #000,0 0 14px #3bc66a;animation:clickGainPop .85s ease-out forwards}
 @keyframes clickGainPop{0%{opacity:0;transform:translateY(8px) scale(.8)}15%{opacity:1;transform:translateY(0) scale(1.08)}100%{opacity:0;transform:translateY(-58px) scale(1)}}
 </style></head>
@@ -15,7 +15,7 @@
 <section id="dealership-view" class="view"><div class="section-heading"><div><span class="eyebrow">ENCONTRE SEU PRÓXIMO SONHO</span><h2>Concessionária</h2></div><span class="muted">Veículos disponíveis</span></div><div class="dealership-banner"><div><span class="eyebrow">NOVAS CONQUISTAS</span><h3>Seu próximo carro<br>está aqui.</h3><p>Compre veículos para aumentar sua renda automática.</p></div><div class="banner-icon">✦</div></div><div id="dealership-list" class="car-grid"></div></section>
 <section id="collection-view" class="view"><div class="section-heading"><div><span class="eyebrow">CADA CONQUISTA CONTA</span><h2>Minha coleção</h2></div><span id="collection-progress" class="muted">1 / 8</span></div><div class="collection-progress"><span id="progress-fill"></span></div><div id="collection-list" class="car-grid"></div></section>
 <section id="upgrades-view" class="view"><div class="section-heading"><div><span class="eyebrow">INVISTA NO SEU PROGRESSO</span><h2>Melhorias</h2></div><span class="muted">Aumente seus ganhos</span></div><div class="upgrade-intro">Use o dinheiro da coleção para melhorar sua operação. Cada melhoria fica mais cara a cada compra.</div><div id="upgrade-list" class="upgrade-list"></div><div class="mission-card"><div><span class="eyebrow">OBJETIVO</span><h3>Construa sua coleção</h3><p id="mission-text">Compre seu segundo veículo para receber uma recompensa.</p></div><strong id="mission-reward">R$ 1.000</strong><button id="mission-button" class="secondary-button">RESGATAR</button></div></section></main>
-<footer><span>GARAGE COLLECTION</span><span>CONSTRUA SUA HISTÓRIA.</span></footer><div id="toast" class="toast" role="status"></div></div><script src="app.js?v=20261112-6" defer></script><script>
+<footer><span>GARAGE COLLECTION</span><span>CONSTRUA SUA HISTÓRIA.</span></footer><div id="toast" class="toast" role="status"></div></div><script src="app.js?v=20261112-7" defer></script><script>
 document.addEventListener('pointerdown',event=>{
  const scene=event.target instanceof Element?event.target.closest('.scene-wrap'):null;
  if(!scene)return;
