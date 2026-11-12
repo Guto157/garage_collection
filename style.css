@@ -181,3 +181,26 @@ img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user
 @keyframes heroMythicNeon{from{box-shadow:inset 0 0 10px #ff202033,0 0 13px #ff202077}to{box-shadow:inset 0 0 22px #ff202099,0 0 30px #ff2020ee}}
 .scene-wrap.rarity-special::after{inset:5px;border:4px solid transparent;border-radius:9px;background:linear-gradient(transparent,transparent) padding-box,conic-gradient(from 0deg,#fff,#ff3030,#ffb52e,#fff9a8,#42f36b,#c7fff1,#24e8ed,#397dff,#d7c4ff,#b64dff,#ff43c8,#fff) border-box;box-shadow:0 0 12px #fff9,0 0 25px #9d5cffcc,0 0 40px #22d9e988;animation:specialRainbowGlow 3.8s linear infinite}
 @media(prefers-reduced-motion:reduce){.scene-wrap.rarity-mythic::after,.scene-wrap.rarity-special::after{animation:none}}
+
+
+/* Figurinhas clicáveis e visualização ampliada em janela central */
+.album-sticker-interactive{cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
+.album-sticker-interactive:hover,.album-sticker-interactive:focus-visible{transform:translateY(-3px) scale(1.025);box-shadow:0 5px 14px #5e4a2b45;outline:2px solid #b88a49;outline-offset:2px}
+.album-sticker-copies{position:absolute;right:5px;top:5px;z-index:2;padding:4px 6px;border-radius:10px;background:#26384a;color:#fff0d3;font:800 9px 'DM Sans';box-shadow:0 2px 6px #0004}
+.album-card-viewer[hidden]{display:none}
+.album-card-viewer{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:18px;background:#05080dcc;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.album-card-viewer-panel{position:relative;width:min(42vw,460px);max-height:78vh;overflow:auto;border:1px solid #c6a66b;border-radius:13px;padding:15px;background:linear-gradient(145deg,#f8f0df,#e5d4b4);color:#29251e;box-shadow:0 18px 55px #0009;animation:albumCardPop .22s ease-out}
+.album-card-viewer-close{position:absolute;top:7px;right:8px;z-index:3;width:30px;height:30px;border:1px solid #bca77f;border-radius:50%;background:#fff8;color:#342d22;font-size:23px;line-height:1;cursor:pointer}
+.album-card-viewer-photo{height:clamp(120px,22vh,230px);overflow:hidden;border:2px solid #d0b985;border-radius:7px;background:#d8d1c3}
+.album-card-viewer-photo img{display:block;width:100%;height:100%;object-fit:cover}
+.album-card-viewer-photo.special{border:3px solid transparent;background:linear-gradient(#d8d1c3,#d8d1c3) padding-box,conic-gradient(#fff,#ff3030,#ffb52e,#42f36b,#24e8ed,#397dff,#b64dff,#ff43c8,#fff) border-box;box-shadow:0 0 15px #9d5cff88,0 0 25px #22d9e955}
+.album-card-viewer-info{padding:12px 3px 2px}
+.album-card-viewer-info h3{font:900 clamp(22px,3vw,32px)/1 'Barlow Condensed';margin:8px 0 4px;color:#262a2d}
+.album-card-viewer-info p{font-size:11px;color:#72664f;margin:0 0 12px}
+.album-card-copy-count{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid #c6b38f;border-radius:7px;background:#fff9ed}
+.album-card-copy-count small{font-size:8px;letter-spacing:.8px;color:#756447;font-weight:800}
+.album-card-copy-count strong{font:900 18px 'Barlow Condensed';color:#26384a}
+.album-card-owned{display:block;margin-top:10px;color:#3c805b;font-size:9px;font-weight:900;letter-spacing:.7px}
+@keyframes albumCardPop{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:700px){.album-card-viewer-panel{width:min(88vw,400px);padding:12px}.album-card-viewer-photo{height:clamp(130px,25vh,220px)}}
+@media(prefers-reduced-motion:reduce){.album-card-viewer-panel{animation:none}}

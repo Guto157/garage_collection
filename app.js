@@ -209,6 +209,26 @@ function renderDealership(){
 let albumRarity='common';
 try{albumRarity=localStorage.getItem(key+'_albumRarity')||'common';}catch(e){}
 let albumNewVehicleId=null;
+function openAlbumCard(car){
+ const copies=state.owned.includes(car.id)?1+Math.max(0,Number(state.cardCopies[car.id])||0):0;
+ let overlay=document.querySelector('#album-card-viewer');
+ if(!overlay){
+  overlay=document.createElement('div');
+  overlay.id='album-card-viewer';
+  overlay.className='album-card-viewer';
+  overlay.hidden=true;
+  overlay.innerHTML='<div class="album-card-viewer-panel" role="dialog" aria-modal="true" aria-label="Detalhes da figurinha"><button type="button" class="album-card-viewer-close" aria-label="Fechar">×</button><div class="album-card-viewer-content"></div></div>';
+  document.body.appendChild(overlay);
+  overlay.querySelector('.album-card-viewer-close').onclick=()=>{overlay.hidden=true;document.removeEventListener('keydown',overlay.albumKeyHandler);};
+  overlay.onclick=e=>{if(e.target===overlay){overlay.hidden=true;document.removeEventListener('keydown',overlay.albumKeyHandler);}};
+ }
+ const content=overlay.querySelector('.album-card-viewer-content');
+ content.innerHTML='<div class="album-card-viewer-photo '+(car.tier==='special'?'special':'')+'"><img src="'+car.image+'" alt="'+car.name+'"></div><div class="album-card-viewer-info"><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+car.class+'</p><div class="album-card-copy-count"><small>QUANTIDADE NA COLEÇÃO</small><strong>'+copies+' '+(copies===1?'CARTA':'CARTAS')+'</strong></div><span class="album-card-owned">✓ VEÍCULO CONQUISTADO</span></div>';
+ overlay.hidden=false;
+ overlay.albumKeyHandler=e=>{if(e.key==='Escape'){overlay.hidden=true;document.removeEventListener('keydown',overlay.albumKeyHandler);}};
+ document.removeEventListener('keydown',overlay.albumKeyHandler);
+ document.addEventListener('keydown',overlay.albumKeyHandler);
+}
 function renderAlbum(){
  const totalOwned=state.owned.length;
  document.querySelector('#collection-progress').textContent=totalOwned+' / '+cars.length+' veículos';
@@ -234,9 +254,15 @@ function renderAlbum(){
    return '<div class="album-empty-slot '+(car.tier==='special'?'special-slot':'')+'"><span class="album-slot-number">Nº '+String(index+1).padStart(2,'0')+'</span><div class="album-empty-mark">＋</div><strong>ESPAÇO VAGO</strong><small>FIGURINHA A DESCOBRIR</small></div>';
   }
   const isNew=albumNewVehicleId===car.id;
-  return '<article class="album-sticker '+(car.tier==='special'?'album-special-sticker ':'')+(isNew?'just-added':'')+'"><span class="album-sticker-number">Nº '+String(index+1).padStart(2,'0')+'</span><div class="album-sticker-photo"><img data-car-id="'+car.id+'" loading="lazy" src="'+car.image+'" alt="'+car.name+'"></div><div class="album-sticker-caption"><strong>'+car.name+'</strong><small>'+car.class+'</small><span>✓ CONQUISTADO</span></div></article>';
+  const copies=1+Math.max(0,Number(state.cardCopies[car.id])||0);
+  return '<article class="album-sticker album-sticker-interactive '+(car.tier==='special'?'album-special-sticker ':'')+(isNew?'just-added':'')+'" data-album-card="'+car.id+'" role="button" tabindex="0" aria-label="Ampliar carta '+car.name+'"><span class="album-sticker-number">Nº '+String(index+1).padStart(2,'0')+'</span><div class="album-sticker-photo"><img data-car-id="'+car.id+'" loading="lazy" src="'+car.image+'" alt="'+car.name+'"></div><div class="album-sticker-caption"><strong>'+car.name+'</strong><small>'+car.class+'</small><span>✓ CONQUISTADO</span></div><span class="album-sticker-copies">'+copies+'x</span></article>';
  }).join('');
  document.querySelector('#album-page').innerHTML='<div class="album-page-heading"><div><span>GARAGE COLLECTION · SÉRIE 01</span><h3>'+group.label+'</h3><p>'+group.note+'</p></div><strong>'+String(tierIndex).padStart(2,'0')+' / 07</strong></div><div class="album-page-stats"><span>'+pageOwned+' DE '+pageCars.length+' FIGURINHAS COLADAS</span><span>'+Math.round(pageOwned/Math.max(1,pageCars.length)*100)+'% COMPLETO</span></div><div class="album-sticker-grid">'+stickers+'</div><div class="album-page-footer"><span>GARAGE COLLECTION</span><span>EDIÇÃO DE COLECIONADOR</span></div>';
+ document.querySelectorAll('[data-album-card]').forEach(sticker=>{
+  const open=()=>openAlbumCard(getCar(sticker.dataset.albumCard));
+  sticker.onclick=open;
+  sticker.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
+ });
  if(albumNewVehicleId){
   const fresh=document.querySelector('.album-sticker.just-added');
   if(fresh){setTimeout(()=>fresh.classList.remove('just-added'),1300);}
