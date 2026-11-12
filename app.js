@@ -93,7 +93,7 @@ function earnFromCar(event){
  if(saveClickTimer)clearTimeout(saveClickTimer);
  saveClickTimer=setTimeout(()=>{saveClickTimer=null;save()},250);
 }
-const featuredCar=document.querySelector('#hero-car');
+const featuredCar=document.querySelector('.scene-wrap');
 featuredCar.addEventListener('click',earnFromCar);
 featuredCar.addEventListener('keydown',event=>{
  if(event.key==='Enter'||event.key===' '){event.preventDefault();earnFromCar();}
