@@ -233,6 +233,41 @@ const packOptions={
  elite:{price:50000,weights:{common:10,uncommon:15,rare:25,epic:25,legendary:18,mythic:6.9999},special:0.0001}
 };
 function renderPackButtons(){document.querySelectorAll('[data-pack]').forEach(button=>{const pack=packOptions[button.dataset.pack];button.disabled=!pack||state.money<pack.price;});}
+function showSpecialReveal(car,duplicate){
+ let style=document.querySelector('#special-reveal-style');
+ if(!style){
+  style=document.createElement('style');style.id='special-reveal-style';
+  style.textContent=`
+  .special-reveal{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:20px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#27334cdd 0%,#090d18f5 65%);animation:specialRevealIn .35s ease-out both}
+  .special-reveal[hidden]{display:none}
+  .special-reveal::before,.special-reveal::after{content:"";position:absolute;inset:-55%;pointer-events:none}
+  .special-reveal::before{background:repeating-conic-gradient(from 0deg at 50% 50%,#ff315b55 0deg 8deg,#ffcf3355 8deg 16deg,#42edac55 16deg 24deg,#35c9ff55 24deg 32deg,#9c62ff55 32deg 40deg,transparent 40deg 48deg);animation:specialRainbowSpin 12s linear infinite;filter:blur(5px)}
+  .special-reveal::after{background:radial-gradient(circle at 12% 18%,#fff 0 2px,transparent 4px),radial-gradient(circle at 82% 22%,#fff 0 2px,transparent 4px),radial-gradient(circle at 24% 76%,#fff 0 2px,transparent 4px),radial-gradient(circle at 76% 82%,#fff 0 2px,transparent 4px),radial-gradient(circle at 50% 8%,#fff 0 2px,transparent 4px);background-size:100% 100%;animation:specialSparkle 1.4s ease-in-out infinite alternate}
+  .special-reveal-panel{position:relative;z-index:2;width:min(100%,430px);padding:24px 20px 20px;text-align:center;border:2px solid #fff;border-radius:18px;background:linear-gradient(145deg,#fff,#c9d6ed 22%,#fce2f2 42%,#c8f5ed 62%,#d8d0ff 82%,#fff);color:#101827;box-shadow:0 0 25px #fff,0 0 65px #9b64ffcc,0 0 110px #27dfff88;animation:specialCardPop .65s cubic-bezier(.2,1.4,.4,1) both}
+  .special-reveal-kicker{font:900 14px 'Barlow Condensed',sans-serif;letter-spacing:4px;color:#5524a5;text-shadow:0 1px #fff}
+  .special-reveal-panel img{display:block;width:100%;height:210px;margin:14px 0 12px;object-fit:cover;border-radius:11px;border:2px solid #fff;box-shadow:0 4px 22px #28354d55}
+  .special-reveal-panel h2{margin:8px 0 4px;font:900 30px 'Barlow Condensed',sans-serif;color:#111827}
+  .special-reveal-panel p{margin:5px 0 17px;color:#29364b;font-size:12px}
+  .special-reveal-panel .rarity{display:inline-block}
+  .special-reveal-close{width:100%;padding:13px;border:0;border-radius:8px;background:linear-gradient(90deg,#7439d5,#277eea,#12a88a);color:#fff;font-weight:900;letter-spacing:1px}
+  @keyframes specialRevealIn{from{opacity:0}to{opacity:1}}
+  @keyframes specialRainbowSpin{to{transform:rotate(360deg)}}
+  @keyframes specialSparkle{from{opacity:.25;transform:scale(.96)}to{opacity:1;transform:scale(1.04)}}
+  @keyframes specialCardPop{from{opacity:0;transform:scale(.55) rotate(-7deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+  @media(prefers-reduced-motion:reduce){.special-reveal::before,.special-reveal::after,.special-reveal-panel{animation:none}}
+  `;
+  document.head.appendChild(style);
+ }
+ let overlay=document.querySelector('#special-reveal');
+ if(!overlay){overlay=document.createElement('div');overlay.id='special-reveal';overlay.className='special-reveal';overlay.hidden=true;document.body.appendChild(overlay);}
+ overlay.innerHTML='<div class="special-reveal-panel" role="dialog" aria-modal="true" aria-label="Carta SPECIAL conquistada"><div class="special-reveal-kicker">★ CARTA SPECIAL ★</div><img src="'+car.image+'" alt="'+car.name+'"><span class="rarity special">'+car.rarity+'</span><h2>'+car.name+'</h2><p>'+(duplicate?'Você encontrou outra cópia SPECIAL! Total: '+(1+state.cardCopies[car.id])+' cartas.':'Uma peça extraordinária entrou para sua coleção!')+'</p><button type="button" class="special-reveal-close">CONTINUAR</button></div>';
+ overlay.hidden=false;
+ const close=()=>{overlay.hidden=true;document.removeEventListener('keydown',onKey);};
+ const onKey=e=>{if(e.key==='Escape')close();};
+ overlay.querySelector('.special-reveal-close').onclick=close;
+ overlay.onclick=e=>{if(e.target===overlay)close();};
+ document.addEventListener('keydown',onKey);
+}
 function openPack(type){
  const pack=packOptions[type];if(!pack)return;
  if(state.money<pack.price){notify('Saldo insuficiente para este pacote.');return;}
@@ -258,7 +293,8 @@ function openPack(type){
  state.selected=car.id;save();render();
  const result=document.querySelector('#pack-result');result.hidden=false;
  result.innerHTML='<div class="pack-result-heading">PACOTE ABERTO</div><div class="pack-result-card"><img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta repetida! Agora você tem '+(1+state.cardCopies[car.id])+' cópias.':'Nova carta adicionada à sua coleção!')+'</p></div></div>';
- result.scrollIntoView({behavior:'smooth',block:'nearest'});notify(duplicate?'Você encontrou uma carta repetida!':'Nova carta adicionada à coleção!');
+ if(car.tier==='special')showSpecialReveal(car,duplicate);
+ else result.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 document.querySelectorAll('[data-pack]').forEach(button=>button.addEventListener('click',()=>openPack(button.dataset.pack)));
 
