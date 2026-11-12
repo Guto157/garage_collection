@@ -93,3 +93,28 @@ img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user
 .market-rules span{font-size:10px;line-height:1.6;color:var(--muted)}
 .market-notice{border-color:#b88a494d}
 @media(max-width:700px){.pack-grid{grid-template-columns:1fr}.pack-card{display:grid;grid-template-columns:82px 1fr;column-gap:13px;text-align:left;align-items:center}.pack-art{grid-row:1/5;height:85px;margin:0;font-size:48px}.pack-card .rarity{justify-self:start}.pack-card h3,.pack-card p,.pack-price{grid-column:2}.pack-card h3{margin:6px 0}.pack-card p{min-height:0;margin:0}.pack-price{margin:8px 0}.pack-card button{grid-column:1/-1}.market-rules{grid-template-columns:1fr}.pack-result-card img{width:105px;height:82px}}
+
+/* Cartas SPECIAL: painel cromado arco-íris abaixo da foto */
+.vehicle-card.special-card .special-chrome{
+ position:relative;overflow:hidden;
+ background:linear-gradient(115deg,#fff 0%,#a9b6c9 9%,#fff0fb 18%,#d8c6ff 27%,#a8f4f0 37%,#fff 47%,#ffd1e8 57%,#b8c9ff 68%,#fff 78%,#b8f4e2 89%,#fff 100%);
+ background-size:280% 100%;
+ color:#111827;
+ animation:specialChromeFlow 7s linear infinite;
+ border-top:1px solid #ffffff;
+ box-shadow:inset 0 3px 12px #ffffffb8,inset 0 -5px 15px #465b8a30;
+}
+.vehicle-card.special-card .special-chrome::before{
+ content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+ background:linear-gradient(115deg,transparent 15%,#ffffff 28%,transparent 40%,#ffffff99 53%,transparent 67%);
+ background-size:220% 100%;animation:specialChromeShine 4.5s ease-in-out infinite;
+}
+.vehicle-card.special-card .special-chrome>*{position:relative;z-index:1}
+.vehicle-card.special-card .special-chrome h3{color:#101827;text-shadow:0 1px 0 #fff,0 0 8px #ffffffb0}
+.vehicle-card.special-card .special-chrome p{color:#26364c}
+.vehicle-card.special-card .special-chrome .vehicle-meta{color:#26364c}
+.vehicle-card.special-card .special-chrome .vehicle-meta strong{color:#111827}
+.vehicle-card.special-card .special-chrome .rarity.special{border-color:#ffffff;background:linear-gradient(100deg,#ee384c,#f5a623,#e8dc3c,#3fc978,#22b9d8,#5474ed,#9a50d7,#e64eaa);background-size:250% 100%;color:#fff;text-shadow:0 1px 4px #000;box-shadow:0 1px 7px #35415b66}
+.vehicle-card.special-card .special-chrome .owned-tag{color:#125b3c;border-color:#23845b88;background:#ffffff80}
+@keyframes specialChromeFlow{from{background-position:0% 50%}to{background-position:280% 50%}}
+@keyframes specialChromeShine{0%{background-position:150% 0}100%{background-position:-120% 0}}

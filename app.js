@@ -168,7 +168,7 @@ let toastTimer;
 function save(){state.lastSave=Date.now();try{localStorage.setItem(key,JSON.stringify(state))}catch(e){console.warn('Não foi possível salvar',e)}}
 function notify(msg){const el=document.querySelector('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
 function getCar(id){return cars.find(c=>c.id===id)||cars[0]}
-function card(c){const owned=state.owned.includes(c.id);const copies=1+Math.max(0,Number(state.cardCopies[c.id])||0);return '<article class="vehicle-card '+(!owned?'locked':'')+'"><div class="vehicle-art"><img data-car-id="'+c.id+'" loading="lazy" src="'+c.image+'" alt="'+c.name+'"></div><div class="vehicle-body"><span class="rarity '+c.tier+'">'+c.rarity+'</span><h3>'+c.name+'</h3><p>'+c.class+' · '+fmt(c.income)+'/min</p><div class="vehicle-meta"><span>PREÇO</span><strong>'+fmt(c.price)+'</strong></div>'+(owned?'<span class="owned-tag">✓ NA SUA COLEÇÃO · '+copies+'x</span>':'<button class="buy-button" data-buy="'+c.id+'" '+(state.money<c.price?'disabled':'')+'>COMPRAR VEÍCULO</button>')+'</div></article>'}
+function card(c){const owned=state.owned.includes(c.id);const copies=1+Math.max(0,Number(state.cardCopies[c.id])||0);const special=c.tier==='special';const details='<span class="rarity '+c.tier+'">'+c.rarity+'</span><h3>'+c.name+'</h3><p>'+c.class+' · '+fmt(c.income)+'/min</p><div class="vehicle-meta"><span>PREÇO</span><strong>'+fmt(c.price)+'</strong></div>'+(owned?'<span class="owned-tag">✓ NA SUA COLEÇÃO · '+copies+'x</span>':'<button class="buy-button" data-buy="'+c.id+'" '+(state.money<c.price?'disabled':'')+'>COMPRAR VEÍCULO</button>');return '<article class="vehicle-card '+(!owned?'locked':'')+(special?' special-card':'')+'"><div class="vehicle-art"><img data-car-id="'+c.id+'" loading="lazy" src="'+c.image+'" alt="'+c.name+'"></div><div class="vehicle-body '+(special?'special-chrome':'')+'">'+details+'</div></article>'}
 let openDealershipRarity=null;
 try{openDealershipRarity=localStorage.getItem(key+'_openRarity')||null;}catch(e){}
 const rarityGroups=[
@@ -183,7 +183,7 @@ const rarityGroups=[
 function renderDealership(){
  const container=document.querySelector('#dealership-list');
  container.innerHTML=rarityGroups.map(group=>{
-  const list=cars.filter(c=>c.id!=='city'&&c.tier===group.tier);
+  const list=cars.filter(c=>c.id!=='city'&&c.tier===group.tier&&(c.tier!=='special'||state.owned.includes(c.id)));
   if(!list.length)return '';
   const opened=openDealershipRarity===group.tier;
   return '<section class="rarity-group"><button type="button" class="rarity-toggle" data-rarity="'+group.tier+'" aria-expanded="'+opened+'"><span class="rarity '+group.tier+'">'+group.label+'</span><span class="rarity-group-copy"><strong>'+group.note+'</strong><small>'+list.length+' veículos disponíveis</small></span><span class="rarity-chevron">'+(opened?'−':'+')+'</span></button><div class="rarity-cars" '+(opened?'':'hidden')+'>'+list.map(card).join('')+'</div></section>';
