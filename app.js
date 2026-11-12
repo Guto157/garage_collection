@@ -95,10 +95,15 @@ function earnFromCar(event){
 }
 const featuredCar=document.querySelector('.scene-wrap');
 if(featuredCar){
- featuredCar.addEventListener('click',event=>{
+ // Um ganho por contato: pointerdown responde imediatamente e aceita dois dedos.
+ featuredCar.addEventListener('pointerdown',event=>{
+  if(event.pointerType==='mouse'&&event.button!==0)return;
   event.preventDefault();
   earnFromCar(event);
- });
+ },{passive:false});
+ // Impede menu de pressão prolongada e arrastar/salvar a foto.
+ featuredCar.addEventListener('contextmenu',event=>event.preventDefault());
+ featuredCar.addEventListener('dragstart',event=>event.preventDefault());
 }
 document.querySelector('#daily-button').onclick=()=>{const today=new Date().toLocaleDateString('en-CA');if(state.lastDaily===today)return;state.lastDaily=today;state.money+=500;save();render();notify('Bônus diário de R$ 500 resgatado!')};
 document.querySelector('#mission-button').onclick=()=>{if(state.owned.length<2||state.missionClaimed)return;state.money+=1000;state.missionClaimed=true;save();render();notify('Missão concluída: +R$ 1.000!')};
