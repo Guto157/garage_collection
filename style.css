@@ -293,4 +293,5 @@ img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user
 /* Ajustes da loja: destaque para cartas novas e topo livre */
 body.shop-open .hero{display:none;}
 .pack-result-card{position:relative;}
-.pack-result-new{position:absolute;top:4px;right:-12px;z-index:3;width:86px;padding:5px 0;text-align:center;transform:rotate(45deg);transform-origin:center;border:1px solid #a5f0bd;border-radius:3px;background:linear-gradient(135deg,#27b978,#116b49);color:#fff;font:900 10px 'DM Sans';letter-spacing:1.2px;box-shadow:0 3px 12px #0008,0 0 13px #54d68b88;}
+.pack-result-new{position:absolute;top:0;right:0;z-index:3;min-width:78px;padding:7px 13px 8px 15px;text-align:center;border:1px solid #a5f0bd;border-right:0;border-top:0;border-radius:0 0 0 16px;background:linear-gradient(135deg,#35d58a,#08784d);color:#fff;font:900 11px 'DM Sans';letter-spacing:1.3px;box-shadow:-3px 4px 13px #0008,0 0 15px #54d68b77;}
+.pack-result-new::after{content:'';position:absolute;right:0;bottom:-8px;width:0;height:0;border-top:8px solid #075b3b;border-left:8px solid transparent;}
