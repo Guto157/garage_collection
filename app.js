@@ -153,12 +153,16 @@ function checkHeroCarImage(car){
 
 
 const fmt=n=>'R$ '+Math.floor(n).toLocaleString('pt-BR');
-const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{}};
+const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{},totalEarned:0,totalClicks:0,packsOpened:0,achievementClaims:{},freePacks:{basic:0,premium:0,elite:0}};
 let state={...defaultState};
 try{const raw=localStorage.getItem(key);if(raw){const parsed=JSON.parse(raw);state={...defaultState,...parsed};}}catch(e){console.warn('Save inválido, iniciando novo jogo',e)}
 // Protege os níveis contra valores inválidos gravados em versões anteriores.
 for(const field of ['clickLevel','incomeLevel','networkLevel']){const value=Number(state[field]);state[field]=Number.isFinite(value)&&value>=0?Math.floor(value):0;}
 state.cardCopies=state.cardCopies&&typeof state.cardCopies==='object'?state.cardCopies:{};
+for(const field of ['totalEarned','totalClicks','packsOpened']){const value=Number(state[field]);state[field]=Number.isFinite(value)&&value>=0?value:0;}
+state.achievementClaims=state.achievementClaims&&typeof state.achievementClaims==='object'?state.achievementClaims:{};
+state.freePacks={...defaultState.freePacks,...(state.freePacks&&typeof state.freePacks==='object'?state.freePacks:{})};
+for(const type of ['basic','premium','elite']){const value=Number(state.freePacks[type]);state.freePacks[type]=Number.isFinite(value)&&value>0?Math.floor(value):0;}
 state.owned=[...new Set(['city',...(Array.isArray(state.owned)?state.owned:[])])].filter(id=>cars.some(c=>c.id===id));
 if(!cars.some(c=>c.id===state.selected&&state.owned.includes(c.id)))state.selected=state.owned[0];
 const incomeBase=()=>cars.filter(c=>state.owned.includes(c.id)).reduce((sum,c)=>sum+c.income,0);
@@ -166,6 +170,7 @@ const income=()=>incomeBase()*(1+state.incomeLevel*.65+state.networkLevel*1.4);
 const clickPower=()=>15*Math.pow(1.5,state.clickLevel);
 let toastTimer;
 function save(){state.lastSave=Date.now();try{localStorage.setItem(key,JSON.stringify(state))}catch(e){console.warn('Não foi possível salvar',e)}}
+function addMoney(amount){const value=Number(amount)||0;if(value<=0)return;state.money+=value;state.totalEarned=(Number(state.totalEarned)||0)+value;if(document.querySelector('#achievements-view')?.classList.contains('active'))renderAchievements();}
 function notify(msg){const el=document.querySelector('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
 function getCar(id){return cars.find(c=>c.id===id)||cars[0]}
 function card(c){
@@ -298,6 +303,7 @@ document.querySelectorAll('[data-select]').forEach(b=>b.onclick=()=>{state.selec
 
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(b.dataset.buy));
 renderPackButtons();
+renderAchievements();
 }
 
 const packOptions={
@@ -307,6 +313,64 @@ const packOptions={
  premium:{price:5000,weights:{common:10,uncommon:25,rare:40,epic:20,legendary:4.99998},special:0.00002},
  elite:{price:50000,weights:{common:5,uncommon:10,rare:20,epic:40,legendary:20,mythic:4.9999},special:0.0001}
 };
+const achievementDefinitions=[];
+const addAchievement=(id,group,title,description,metric,target,rewardType,rewardCount)=>achievementDefinitions.push({id,group,title,description,metric,target,rewardType,rewardCount});
+const cashGoals=[
+ [500,'Primeiros ganhos','Acumule R$ 500.','basic',1],[1000,'Ritmo de garagem','Acumule R$ 1 mil.','basic',1],[5000,'Caixa crescendo','Acumule R$ 5 mil.','basic',1],[10000,'Pequena fortuna','Acumule R$ 10 mil.','basic',2],[25000,'Colecionador dedicado','Acumule R$ 25 mil.','basic',2],[50000,'Primeiro grande marco','Acumule R$ 50 mil.','basic',3],[100000,'Seis dígitos','Acumule R$ 100 mil.','premium',1],[250000,'Garagem valorizada','Acumule R$ 250 mil.','premium',1],[500000,'Meio milhão','Acumule R$ 500 mil.','premium',2],[1000000,'Milionário','Acumule R$ 1 milhão.','premium',2],[2500000,'Alto patrimônio','Acumule R$ 2,5 milhões.','premium',3],[5000000,'Grande investidor','Acumule R$ 5 milhões.','elite',1],[10000000,'Dez milhões','Acumule R$ 10 milhões.','elite',1],[25000000,'Magnata automotivo','Acumule R$ 25 milhões.','elite',2],[50000000,'Fortuna lendária','Acumule R$ 50 milhões.','elite',3]
+];
+cashGoals.forEach((g,i)=>addAchievement('cash-'+(i+1),'Dinheiro',g[1],g[2],'cash',g[0],g[3],g[4]));
+const clickGoals=[
+ [100,'Primeiros toques','Toque no carro 100 vezes.','basic',1],[500,'Mão firme','Toque no carro 500 vezes.','basic',1],[1000,'Mil toques','Toque no carro 1.000 vezes.','basic',2],[2500,'Dedo veloz','Toque no carro 2.500 vezes.','basic',2],[5000,'Colecionador ativo','Toque no carro 5.000 vezes.','premium',1],[10000,'Dez mil toques','Toque no carro 10 mil vezes.','premium',1],[25000,'Ritmo acelerado','Toque no carro 25 mil vezes.','premium',2],[50000,'Toque de mestre','Toque no carro 50 mil vezes.','premium',2],[100000,'Cem mil toques','Toque no carro 100 mil vezes.','elite',1],[250000,'Lenda dos cliques','Toque no carro 250 mil vezes.','elite',2]
+];
+clickGoals.forEach((g,i)=>addAchievement('click-'+(i+1),'Dedicação',g[1],g[2],'clicks',g[0],g[3],g[4]));
+const carGoals=[
+ [2,'Coleção começando','Conquiste 2 veículos.','basic',1],[5,'Pequena garagem','Conquiste 5 veículos.','basic',1],[10,'Dez máquinas','Conquiste 10 veículos.','basic',2],[15,'Garagem em expansão','Conquiste 15 veículos.','premium',1],[20,'Vinte conquistas','Conquiste 20 veículos.','premium',1],[30,'Coleção respeitável','Conquiste 30 veículos.','premium',2],[40,'Grande coleção','Conquiste 40 veículos.','premium',2],[50,'Colecionador experiente','Conquiste 50 veículos.','elite',1],[60,'Quase completa','Conquiste 60 veículos.','elite',2],[cars.length,'Álbum completo','Desbloqueie todos os '+cars.length+' veículos do álbum.','elite',3]
+];
+carGoals.forEach((g,i)=>addAchievement('cars-'+(i+1),'Coleção',g[1],g[2],'cars',g[0],g[3],g[4]));
+const rarityNames={common:'COMUM',uncommon:'INCOMUM',rare:'RARO',epic:'ÉPICO',legendary:'LENDÁRIO',mythic:'MÍTICO',special:'SPECIAL'};
+const rarityRewards=[['basic',2],['premium',1],['premium',2],['premium',3],['elite',1],['elite',2],['elite',3]];
+Object.keys(rarityNames).forEach((tier,i)=>{const total=cars.filter(c=>c.tier===tier).length;addAchievement('rarity-'+tier,'Raridades','Raridade '+rarityNames[tier],'Conquiste todos os '+total+' veículos da raridade '+rarityNames[tier]+'.','rarity:'+tier,total,rarityRewards[i][0],rarityRewards[i][1]);});
+[[1,'Primeiro investimento','Compre sua primeira melhoria.','basic',1],[5,'Oficina equipada','Alcance 5 níveis somados de melhorias.','basic',2],[10,'Preparação avançada','Alcance 10 níveis somados de melhorias.','premium',1],[20,'Engenharia de ponta','Alcance 20 níveis somados de melhorias.','premium',2],[35,'Mestre da performance','Alcance 35 níveis somados de melhorias.','elite',1]].forEach((g,i)=>addAchievement('upgrade-'+(i+1),'Melhorias',g[1],g[2],'upgrades',g[0],g[3],g[4]));
+[[1,'Primeiro pacote','Abra seu primeiro pacote.','basic',1],[10,'Abrindo a coleção','Abra 10 pacotes.','premium',1],[25,'Viciado em coleção','Abra 25 pacotes.','elite',1]].forEach((g,i)=>addAchievement('packs-'+(i+1),'Pacotes',g[1],g[2],'packs',g[0],g[3],g[4]));
+if(achievementDefinitions.length!==50)throw new Error('Quantidade de conquistas inválida: '+achievementDefinitions.length);
+function achievementProgress(item){
+ let current=0;
+ if(item.metric==='cash')current=state.totalEarned;
+ else if(item.metric==='clicks')current=state.totalClicks;
+ else if(item.metric==='cars')current=state.owned.length;
+ else if(item.metric==='upgrades')current=state.clickLevel+state.incomeLevel+state.networkLevel;
+ else if(item.metric==='packs')current=state.packsOpened;
+ else if(item.metric.startsWith('rarity:'))current=state.owned.filter(id=>getCar(id).tier===item.metric.split(':')[1]).length;
+ return {current:Math.min(item.target,current),done:current>=item.target,percent:Math.min(100,current/item.target*100)};
+}
+function rewardLabel(item){const names={basic:'Garagem',premium:'Premium',elite:'Elite'};return item.rewardCount+' pacote '+names[item.rewardType]+(item.rewardCount>1?'s':'');}
+function claimAchievement(id){
+ const item=achievementDefinitions.find(a=>a.id===id);if(!item||state.achievementClaims[id]||!achievementProgress(item).done)return;
+ state.achievementClaims[id]=true;state.freePacks[item.rewardType]=(state.freePacks[item.rewardType]||0)+item.rewardCount;
+ save();renderAchievements();notify('Conquista resgatada: '+rewardLabel(item)+' grátis!');
+}
+function renderAchievements(){
+ const root=document.querySelector('#achievements-view');if(!root)return;
+ const claimed=achievementDefinitions.filter(a=>state.achievementClaims[a.id]).length;
+ const completed=achievementDefinitions.filter(a=>achievementProgress(a).done).length;
+ const ready=achievementDefinitions.filter(a=>achievementProgress(a).done&&!state.achievementClaims[a.id]).length;
+ const badge=document.querySelector('#achievement-tab-count');if(badge)badge.textContent=ready;
+ const groups=['Dinheiro','Dedicação','Coleção','Raridades','Melhorias','Pacotes'];
+ const packNames={basic:'Garagem',premium:'Premium',elite:'Elite'};
+ const cards=groups.map(group=>{
+  const items=achievementDefinitions.filter(a=>a.group===group);
+  return '<section class="achievement-group"><div class="achievement-group-heading"><h3>'+group+'</h3><span>'+items.filter(a=>achievementProgress(a).done).length+' / '+items.length+'</span></div><div class="achievement-grid">'+items.map(item=>{
+   const p=achievementProgress(item),isClaimed=!!state.achievementClaims[item.id];
+   const current=item.metric==='cash'?fmt(p.current):Math.floor(p.current).toLocaleString('pt-BR');
+   const target=item.metric==='cash'?fmt(item.target):item.target.toLocaleString('pt-BR');
+   return '<article class="achievement-card '+(isClaimed?'claimed':p.done?'ready':'')+'"><div class="achievement-card-top"><span class="achievement-medal">'+(isClaimed?'✓':p.done?'★':'◇')+'</span><span class="achievement-reward">'+rewardLabel(item)+'</span></div><h4>'+item.title+'</h4><p>'+item.description+'</p><div class="achievement-progress"><span style="width:'+p.percent+'%"></span></div><div class="achievement-card-bottom"><small>'+current+' / '+target+'</small><button type="button" data-claim-achievement="'+item.id+'" '+(!p.done||isClaimed?'disabled':'')+'>'+(isClaimed?'RESGATADA':p.done?'RESGATAR':'EM ANDAMENTO')+'</button></div></article>';
+  }).join('')+'</div></section>';
+ }).join('');
+ const free=['basic','premium','elite'].map(type=>'<article class="achievement-pack '+type+'"><span class="achievement-pack-icon">'+(type==='basic'?'▧':type==='premium'?'✦':'♛')+'</span><div><strong>Pacote '+packNames[type]+'</strong><small>Disponíveis: '+(state.freePacks[type]||0)+'</small></div><button type="button" data-free-pack="'+type+'" '+(!(state.freePacks[type]>0)?'disabled':'')+'>ABRIR GRÁTIS</button></article>').join('');
+ root.innerHTML='<div class="achievement-intro"><div><span class="eyebrow">DESAFIOS DO COLECIONADOR</span><h2>Conquistas</h2><p>Complete objetivos, resgate pacotes e avance na coleção.</p></div><div class="achievement-summary"><strong>'+completed+' / 50</strong><small>CONQUISTAS LIBERADAS</small><span>'+claimed+' RESGATADAS</span></div></div><div class="achievement-inventory"><div class="achievement-inventory-heading"><div><span class="eyebrow">SUAS RECOMPENSAS</span><h3>Pacotes grátis</h3></div><small>Resgate conquistas para receber pacotes</small></div><div class="achievement-pack-list">'+free+'</div><div id="achievement-pack-result" class="pack-result" hidden></div></div>'+cards;
+ root.querySelectorAll('[data-claim-achievement]').forEach(button=>button.addEventListener('click',()=>claimAchievement(button.dataset.claimAchievement)));
+ root.querySelectorAll('[data-free-pack]').forEach(button=>button.addEventListener('click',()=>openPack(button.dataset.freePack,true,'#achievement-pack-result')));
+}
 function renderPackButtons(){document.querySelectorAll('[data-pack]').forEach(button=>{const pack=packOptions[button.dataset.pack];button.disabled=!pack||state.money<pack.price;});}
 function showSpecialReveal(car,duplicate){
  let style=document.querySelector('#special-reveal-style');
@@ -343,10 +407,11 @@ function showSpecialReveal(car,duplicate){
  overlay.onclick=e=>{if(e.target===overlay)close();};
  document.addEventListener('keydown',onKey);
 }
-function openPack(type){
+function openPack(type,free=false,resultTarget='#pack-result'){
  const pack=packOptions[type];if(!pack)return;
- if(state.money<pack.price){notify('Saldo insuficiente para este pacote.');return;}
- state.money-=pack.price;
+ if(free){if(!(state.freePacks[type]>0)){notify('Você não tem esse pacote grátis disponível.');return;}state.freePacks[type]--;}
+ else{if(state.money<pack.price){notify('Saldo insuficiente para este pacote.');return;}state.money-=pack.price;}
+ state.packsOpened=(Number(state.packsOpened)||0)+1;
  const roll=Math.random()*100;let car;
  if(roll<pack.special){
   const specials=cars.filter(c=>c.tier==='special');
@@ -364,10 +429,10 @@ function openPack(type){
  const duplicate=state.owned.includes(car.id);
  if(duplicate)state.cardCopies[car.id]=(Number(state.cardCopies[car.id])||0)+1;else{state.owned.push(car.id);albumNewVehicleId=car.id;}
  state.selected=car.id;save();render();
- const result=document.querySelector('#pack-result');result.hidden=false;
- result.innerHTML='<div class="pack-result-heading">PACOTE ABERTO</div><div class="pack-result-card"><img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta adicionada ao álbum.':'Nova carta desbloqueada e adicionada ao álbum!')+'</p></div></div>';
+ const result=document.querySelector(resultTarget);if(result){result.hidden=false;
+ result.innerHTML='<div class="pack-result-heading">'+(free?'RECOMPENSA ABERTA':'PACOTE ABERTO')+'</div><div class="pack-result-card"><img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta adicionada ao álbum.':'Nova carta desbloqueada e adicionada ao álbum!')+'</p></div></div>';}
  if(car.tier==='special')showSpecialReveal(car,duplicate);
- else result.scrollIntoView({behavior:'smooth',block:'nearest'});
+ else if(result)result.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 document.querySelectorAll('[data-pack]').forEach(button=>button.addEventListener('click',()=>openPack(button.dataset.pack)));
 
@@ -395,7 +460,8 @@ function refreshCashOnly(){
  document.querySelectorAll('[data-upgrade]').forEach(b=>{const u=upgrades.find(x=>x.kind===b.dataset.upgrade);const lv=b.dataset.upgrade==='click'?state.clickLevel:b.dataset.upgrade==='income'?state.incomeLevel:state.networkLevel;b.disabled=state.money<Math.floor(u.base*Math.pow(1.85,lv))});
 }
 function earnFromCar(){
- state.money+=clickPower();
+ state.totalClicks=(Number(state.totalClicks)||0)+1;
+ addMoney(clickPower());
  if(!cashRefreshQueued){
   cashRefreshQueued=true;
   requestAnimationFrame(()=>{cashRefreshQueued=false;refreshCashOnly()});
@@ -411,8 +477,8 @@ if(featuredCar){
   earnFromCar();
  },{passive:false});
 }
-document.querySelector('#daily-button').onclick=()=>{const today=new Date().toLocaleDateString('en-CA');if(state.lastDaily===today)return;state.lastDaily=today;state.money+=500;save();render();notify('Bônus diário de R$ 500 resgatado!')};
-document.querySelector('#mission-button').onclick=()=>{if(state.owned.length<2||state.missionClaimed)return;state.money+=1000;state.missionClaimed=true;save();render();notify('Missão concluída: +R$ 1.000!')};
+document.querySelector('#daily-button').onclick=()=>{const today=new Date().toLocaleDateString('en-CA');if(state.lastDaily===today)return;state.lastDaily=today;addMoney(500);save();render();notify('Bônus diário de R$ 500 resgatado!')};
+document.querySelector('#mission-button').onclick=()=>{if(state.owned.length<2||state.missionClaimed)return;addMoney(1000);state.missionClaimed=true;save();render();notify('Missão concluída: +R$ 1.000!')};
 
 const menuToggle=document.querySelector('#menu-toggle'),sideMenu=document.querySelector('#side-menu'),menuBackdrop=document.querySelector('#menu-backdrop');
 function closeSideMenu(){sideMenu.classList.remove('open');menuBackdrop.classList.remove('show');menuToggle.setAttribute('aria-expanded','false');sideMenu.setAttribute('aria-hidden','true');}
@@ -465,23 +531,25 @@ sideMenu.querySelectorAll('[data-page]').forEach(button=>button.addEventListener
 
 const activeTabKey=key+'_activeTab';
 function activateTab(tabId,remember=true){
- const valid=['garage','dealership','collection','upgrades'];
+ const valid=['garage','dealership','collection','upgrades','achievements'];
  const selected=valid.includes(tabId)?tabId:'garage';
  document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab===selected));
  document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===selected+'-view'));
  if(remember){try{localStorage.setItem(activeTabKey,selected);}catch(e){}}
+ if(selected==='achievements')renderAchievements();
 }
 document.querySelectorAll('.tab').forEach(button=>button.onclick=()=>activateTab(button.dataset.tab));
+renderAchievements();
 let savedTab='garage';
 try{savedTab=localStorage.getItem(activeTabKey)||'garage';}catch(e){}
 const elapsed=Math.max(0,Math.min(8*60*60,(Date.now()-(state.lastSave||Date.now()))/1000));
 const offline=Math.floor(income()*elapsed/60);
-if(offline>0){state.money+=offline;setTimeout(()=>notify('Enquanto esteve fora, sua garagem rendeu '+fmt(offline)+'.'),700)}
+if(offline>0){addMoney(offline);setTimeout(()=>notify('Enquanto esteve fora, sua garagem rendeu '+fmt(offline)+'.'),700)}
 save();render();
 // A interface só é restaurada depois da renderização inicial.
 try{savedTab=localStorage.getItem(activeTabKey)||savedTab;}catch(e){}
 activateTab(savedTab,false);
-setInterval(()=>{const gain=income()/60;state.money+=gain;document.querySelector('#money').textContent=fmt(state.money);renderPackButtons();document.querySelectorAll('[data-buy]').forEach(b=>{const c=getCar(b.dataset.buy);b.disabled=state.money<c.price});document.querySelectorAll('[data-upgrade]').forEach(b=>{const u=upgrades.find(x=>x.kind===b.dataset.upgrade);const lv=x=>x==='click'?state.clickLevel:x==='income'?state.incomeLevel:state.networkLevel; b.disabled=state.money<Math.floor(u.base*Math.pow(1.85,lv(u.kind)))});},1000);
+setInterval(()=>{const gain=income()/60;addMoney(gain);document.querySelector('#money').textContent=fmt(state.money);renderPackButtons();document.querySelectorAll('[data-buy]').forEach(b=>{const c=getCar(b.dataset.buy);b.disabled=state.money<c.price});document.querySelectorAll('[data-upgrade]').forEach(b=>{const u=upgrades.find(x=>x.kind===b.dataset.upgrade);const lv=x=>x==='click'?state.clickLevel:x==='income'?state.incomeLevel:state.networkLevel; b.disabled=state.money<Math.floor(u.base*Math.pow(1.85,lv(u.kind)))});},1000);
 setInterval(save,10000);
 
 
