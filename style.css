@@ -25,9 +25,17 @@ img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user
 .vehicle-card:has(.rarity.rare){border-color:#62aaffbb;box-shadow:0 0 12px #62aaff45, inset 0 0 14px #62aaff10}
 .vehicle-card:has(.rarity.epic){border-color:#b783f0cc;box-shadow:0 0 14px #a66be955, inset 0 0 16px #a66be912}
 .vehicle-card:has(.rarity.legendary){border-color:#f2b94dcc;box-shadow:0 0 17px #f2b94d66, inset 0 0 18px #f2b94d18}
-.vehicle-card:has(.rarity.mythic){border-color:#ff6daecc;box-shadow:0 0 19px #ff5da877, inset 0 0 20px #ff5da81c;animation:mythicNeon 2.8s ease-in-out infinite alternate}
+.vehicle-card:has(.rarity.mythic){border-color:#ff4545cc;box-shadow:0 0 19px #ff202077, inset 0 0 20px #ff20201c;animation:mythicNeon 2.8s ease-in-out infinite alternate}
 .vehicle-card:hover{transform:translateY(-3px)}
-@keyframes mythicNeon{from{box-shadow:0 0 12px #ff5dae55,inset 0 0 12px #ff5dae12}to{box-shadow:0 0 23px #ff5daebb,inset 0 0 22px #ff5dae28}}
+@keyframes mythicNeon{from{box-shadow:0 0 12px #ff202055,inset 0 0 12px #ff202012}to{box-shadow:0 0 25px #ff2020cc,inset 0 0 22px #ff202028}}
 .garage-car{transition:border-color .2s,box-shadow .2s}
 .garage-car:has(small:nth-of-type(1)){box-shadow:0 0 0 transparent}
 .garage-car.selected{box-shadow:0 0 12px #e8b45b45}
+
+/* Categoria SPECIAL: carros históricos com moldura arco-íris animada */
+.vehicle-card:has(.rarity.special){border:2px solid transparent;background:linear-gradient(145deg,#151e2a,#0e141e) padding-box,conic-gradient(from 0deg,#ff3030,#ff9d22,#fff12a,#42f36b,#24e8ed,#397dff,#b64dff,#ff43c8,#ff3030) border-box;box-shadow:0 0 20px #9d5cff55,0 0 34px #22d9e933;animation:specialRainbowGlow 3.8s linear infinite}
+.vehicle-card:has(.rarity.special) .rarity.special{color:#fff;background:linear-gradient(100deg,#ff4242,#ffb52e,#e5e83b,#38dc77,#25d7e8,#5275ff,#c35cff,#ff4ba9);background-size:250% 100%;animation:specialBadgeFlow 4s linear infinite;text-shadow:0 1px 5px #000}
+@keyframes specialRainbowGlow{0%{filter:hue-rotate(0deg);box-shadow:0 0 16px #ff454555,0 0 28px #4b8dff22}50%{box-shadow:0 0 25px #ad4dff88,0 0 38px #29e8d955}100%{filter:hue-rotate(360deg);box-shadow:0 0 16px #ff454555,0 0 28px #4b8dff22}}
+@keyframes specialBadgeFlow{from{background-position:0% 50%}to{background-position:250% 50%}}
+.vehicle-card:has(.rarity.special) .vehicle-body h3{text-shadow:0 0 10px #8a74ff55}
+.rarity.special{color:#fff;border:1px solid #ffffff55}
