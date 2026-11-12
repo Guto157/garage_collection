@@ -354,9 +354,9 @@ function renderAchievements(){
  const claimed=achievementDefinitions.filter(a=>state.achievementClaims[a.id]).length;
  const completed=achievementDefinitions.filter(a=>achievementProgress(a).done).length;
  const ready=achievementDefinitions.filter(a=>achievementProgress(a).done&&!state.achievementClaims[a.id]).length;
- const badge=document.querySelector('#achievement-tab-count');if(badge)badge.textContent=ready;
+ const badge=document.querySelector('#achievement-tab-count');
+ if(badge){badge.classList.toggle('has-ready',ready>0);badge.setAttribute('aria-label',ready>0?ready+' conquistas prontas para resgatar':'Nenhuma conquista pronta');}
  const groups=['Dinheiro','Dedicação','Coleção','Raridades','Melhorias','Pacotes'];
- const packNames={basic:'Garagem',premium:'Premium',elite:'Elite'};
  const cards=groups.map(group=>{
   const items=achievementDefinitions.filter(a=>a.group===group);
   return '<section class="achievement-group"><div class="achievement-group-heading"><h3>'+group+'</h3><span>'+items.filter(a=>achievementProgress(a).done).length+' / '+items.length+'</span></div><div class="achievement-grid">'+items.map(item=>{
@@ -366,10 +366,16 @@ function renderAchievements(){
    return '<article class="achievement-card '+(isClaimed?'claimed':p.done?'ready':'')+'"><div class="achievement-card-top"><span class="achievement-medal">'+(isClaimed?'✓':p.done?'★':'◇')+'</span><span class="achievement-reward">'+rewardLabel(item)+'</span></div><h4>'+item.title+'</h4><p>'+item.description+'</p><div class="achievement-progress"><span style="width:'+p.percent+'%"></span></div><div class="achievement-card-bottom"><small>'+current+' / '+target+'</small><button type="button" data-claim-achievement="'+item.id+'" '+(!p.done||isClaimed?'disabled':'')+'>'+(isClaimed?'RESGATADA':p.done?'RESGATAR':'EM ANDAMENTO')+'</button></div></article>';
   }).join('')+'</div></section>';
  }).join('');
- const free=['basic','premium','elite'].map(type=>'<article class="achievement-pack '+type+'"><span class="achievement-pack-icon">'+(type==='basic'?'▧':type==='premium'?'✦':'♛')+'</span><div><strong>Pacote '+packNames[type]+'</strong><small>Disponíveis: '+(state.freePacks[type]||0)+'</small></div><button type="button" data-free-pack="'+type+'" '+(!(state.freePacks[type]>0)?'disabled':'')+'>ABRIR GRÁTIS</button></article>').join('');
- root.innerHTML='<div class="achievement-intro"><div><span class="eyebrow">DESAFIOS DO COLECIONADOR</span><h2>Conquistas</h2><p>Complete objetivos, resgate pacotes e avance na coleção.</p></div><div class="achievement-summary"><strong>'+completed+' / 50</strong><small>CONQUISTAS LIBERADAS</small><span>'+claimed+' RESGATADAS</span></div></div><div class="achievement-inventory"><div class="achievement-inventory-heading"><div><span class="eyebrow">SUAS RECOMPENSAS</span><h3>Pacotes grátis</h3></div><small>Resgate conquistas para receber pacotes</small></div><div class="achievement-pack-list">'+free+'</div><div id="achievement-pack-result" class="pack-result" hidden></div></div>'+cards;
+ root.innerHTML='<div class="achievement-intro"><div><span class="eyebrow">DESAFIOS DO COLECIONADOR</span><h2>Conquistas</h2><p>Complete objetivos e resgate suas recompensas.</p></div><div class="achievement-summary"><strong>'+completed+' / 50</strong><small>CONQUISTAS LIBERADAS</small><span>'+claimed+' RESGATADAS</span></div></div>'+cards;
  root.querySelectorAll('[data-claim-achievement]').forEach(button=>button.addEventListener('click',()=>claimAchievement(button.dataset.claimAchievement)));
- root.querySelectorAll('[data-free-pack]').forEach(button=>button.addEventListener('click',()=>openPack(button.dataset.freePack,true,'#achievement-pack-result')));
+ renderFreePacks();
+}
+function renderFreePacks(){
+ const root=document.querySelector('#free-pack-inventory');if(!root)return;
+ const names={basic:'Garagem',premium:'Premium',elite:'Elite'};
+ const packs=['basic','premium','elite'].map(type=>'<article class="achievement-pack '+type+'"><span class="achievement-pack-icon">'+(type==='basic'?'▧':type==='premium'?'✦':'♛')+'</span><div><strong>Pacote '+names[type]+'</strong><small>Disponíveis: '+(state.freePacks[type]||0)+'</small></div><button type="button" data-free-pack="'+type+'" '+(!(state.freePacks[type]>0)?'disabled':'')+'>ABRIR GRÁTIS</button></article>').join('');
+ root.innerHTML='<div class="achievement-inventory shop-free-packs"><div class="achievement-inventory-heading"><div><span class="eyebrow">RECOMPENSAS CONQUISTADAS</span><h3>Seus pacotes grátis</h3></div><small>Pacotes recebidos ao completar desafios</small></div><div class="achievement-pack-list">'+packs+'</div><div id="free-pack-result" class="pack-result" hidden></div></div>';
+ root.querySelectorAll('[data-free-pack]').forEach(button=>button.addEventListener('click',()=>openPack(button.dataset.freePack,true,'#free-pack-result')));
 }
 function renderPackButtons(){document.querySelectorAll('[data-pack]').forEach(button=>{const pack=packOptions[button.dataset.pack];button.disabled=!pack||state.money<pack.price;});}
 function showSpecialReveal(car,duplicate){
