@@ -153,7 +153,7 @@ function checkHeroCarImage(car){
 
 
 const fmt=n=>'R$ '+Math.floor(n).toLocaleString('pt-BR');
-const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{},totalEarned:0,totalClicks:0,packsOpened:0,achievementClaims:{},freePacks:{basic:0,premium:0,elite:0}};
+const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{},totalEarned:0,totalClicks:0,packsOpened:0,achievementClaims:{},albumPageClaims:{},freePacks:{basic:0,premium:0,elite:0}};
 let state={...defaultState};
 try{const raw=localStorage.getItem(key);if(raw){const parsed=JSON.parse(raw);state={...defaultState,...parsed};}}catch(e){console.warn('Save inválido, iniciando novo jogo',e)}
 // Protege os níveis contra valores inválidos gravados em versões anteriores.
@@ -161,6 +161,7 @@ for(const field of ['clickLevel','incomeLevel','networkLevel']){const value=Numb
 state.cardCopies=state.cardCopies&&typeof state.cardCopies==='object'?state.cardCopies:{};
 for(const field of ['totalEarned','totalClicks','packsOpened']){const value=Number(state[field]);state[field]=Number.isFinite(value)&&value>=0?value:0;}
 state.achievementClaims=state.achievementClaims&&typeof state.achievementClaims==='object'?state.achievementClaims:{};
+state.albumPageClaims=state.albumPageClaims&&typeof state.albumPageClaims==='object'?state.albumPageClaims:{};
 state.freePacks={...defaultState.freePacks,...(state.freePacks&&typeof state.freePacks==='object'?state.freePacks:{})};
 for(const type of ['basic','premium','elite']){const value=Number(state.freePacks[type]);state.freePacks[type]=Number.isFinite(value)&&value>0?Math.floor(value):0;}
 state.owned=[...new Set(['city',...(Array.isArray(state.owned)?state.owned:[])])].filter(id=>cars.some(c=>c.id===id));
@@ -238,12 +239,16 @@ function renderAlbum(){
  const totalOwned=state.owned.length;
  document.querySelector('#collection-progress').textContent=totalOwned+' / '+cars.length+' veículos';
  document.querySelector('#progress-fill').style.width=(totalOwned/cars.length*100)+'%';
+ const readyPages=rarityGroups.filter(group=>{const p=albumPageProgress(group.tier);return p.complete&&!p.claimed;}).length;
+ const badge=document.querySelector('#collection-tab-count');
+ if(badge){badge.classList.toggle('has-ready',readyPages>0);badge.setAttribute('aria-label',readyPages>0?readyPages+' páginas completas com recompensa para coletar':'Nenhuma recompensa de página disponível');}
  if(!rarityGroups.some(group=>group.tier===albumRarity))albumRarity='common';
  const tabs=document.querySelector('#album-rarity-tabs');
  tabs.innerHTML=rarityGroups.map(group=>{
   const all=cars.filter(car=>car.tier===group.tier);
   const owned=all.filter(car=>state.owned.includes(car.id)).length;
-  return '<button type="button" class="album-rarity-tab '+(albumRarity===group.tier?'active':'')+'" data-album-rarity="'+group.tier+'"><span>'+group.label+'</span><small>'+owned+'/'+all.length+'</small></button>';
+  const page=albumPageProgress(group.tier);
+  return '<button type="button" class="album-rarity-tab '+(albumRarity===group.tier?'active':'')+'" data-album-rarity="'+group.tier+'"><span>'+group.label+'</span><small>'+owned+'/'+all.length+(page.complete&&!page.claimed?' · ★':'')+'</small></button>';
  }).join('');
  tabs.querySelectorAll('[data-album-rarity]').forEach(button=>button.onclick=()=>{
   albumRarity=button.dataset.albumRarity;
@@ -253,6 +258,9 @@ function renderAlbum(){
  const group=rarityGroups.find(item=>item.tier===albumRarity);
  const pageCars=cars.filter(car=>car.tier===albumRarity);
  const pageOwned=pageCars.filter(car=>state.owned.includes(car.id)).length;
+ const pageProgress=albumPageProgress(albumRarity);
+ const pageReward=albumPageRewards[albumRarity];
+ const names={basic:'Garagem',premium:'Premium',elite:'Elite'};
  const tierIndex=rarityGroups.findIndex(item=>item.tier===albumRarity)+1;
  const stickers=pageCars.map((car,index)=>{
   if(!state.owned.includes(car.id)){
@@ -262,7 +270,12 @@ function renderAlbum(){
   const copies=1+Math.max(0,Number(state.cardCopies[car.id])||0);
   return '<article class="album-sticker album-sticker-interactive '+(car.tier==='special'?'album-special-sticker ':'')+(isNew?'just-added':'')+'" data-album-card="'+car.id+'" role="button" tabindex="0" aria-label="Ampliar carta '+car.name+'"><span class="album-sticker-number">Nº '+String(index+1).padStart(2,'0')+'</span><div class="album-sticker-photo"><img data-car-id="'+car.id+'" loading="lazy" src="'+car.image+'" alt="'+car.name+'"></div><div class="album-sticker-caption"><strong>'+car.name+'</strong><small>'+car.class+'</small><span>✓ CONQUISTADO</span></div><span class="album-sticker-copies">'+copies+'x</span></article>';
  }).join('');
- document.querySelector('#album-page').innerHTML='<div class="album-page-heading"><div><span>GARAGE COLLECTION · SÉRIE 01</span><h3>'+group.label+'</h3><p>'+group.note+'</p></div><strong>'+String(tierIndex).padStart(2,'0')+' / 07</strong></div><div class="album-page-stats"><span>'+pageOwned+' DE '+pageCars.length+' FIGURINHAS COLADAS</span><span>'+Math.round(pageOwned/Math.max(1,pageCars.length)*100)+'% COMPLETO</span></div><div class="album-sticker-grid">'+stickers+'</div><div class="album-page-footer"><span>GARAGE COLLECTION</span><span>EDIÇÃO DE COLECIONADOR</span></div>';
+ const rewardPanel=pageProgress.complete
+  ?'<div class="album-page-reward '+(pageProgress.claimed?'claimed':'ready')+'"><div><strong>'+ (pageProgress.claimed?'✓ RECOMPENSA COLETADA':'★ PÁGINA COMPLETA!') +'</strong><small>'+(pageProgress.claimed?'Esta recompensa já foi resgatada.':'Você desbloqueou '+pageReward.count+' pacote '+names[pageReward.type]+(pageReward.count>1?'s':'')+'.')+'</small></div><button type="button" data-claim-album-page="'+albumRarity+'" '+(pageProgress.claimed?'disabled':'')+'>'+(pageProgress.claimed?'COLETADA':'COLETAR RECOMPENSA')+'</button></div>'
+  :'';
+ document.querySelector('#album-page').innerHTML='<div class="album-page-heading"><div><span>GARAGE COLLECTION · SÉRIE 01</span><h3>'+group.label+'</h3><p>'+group.note+'</p></div><strong>'+String(tierIndex).padStart(2,'0')+' / 07</strong></div><div class="album-page-stats"><span>'+pageOwned+' DE '+pageCars.length+' FIGURINHAS COLADAS</span><span>'+Math.round(pageOwned/Math.max(1,pageCars.length)*100)+'% COMPLETO</span></div>'+rewardPanel+'<div class="album-sticker-grid">'+stickers+'</div><div class="album-page-footer"><span>GARAGE COLLECTION</span><span>EDIÇÃO DE COLECIONADOR</span></div>';
+ const claimButton=document.querySelector('[data-claim-album-page]');
+ if(claimButton)claimButton.onclick=()=>claimAlbumPage(claimButton.dataset.claimAlbumPage);
  document.querySelectorAll('[data-album-card]').forEach(sticker=>{
   const open=()=>openAlbumCard(getCar(sticker.dataset.albumCard));
   sticker.onclick=open;
@@ -344,6 +357,22 @@ function achievementProgress(item){
  return {current:Math.min(item.target,current),done:current>=item.target,percent:Math.min(100,current/item.target*100)};
 }
 function rewardLabel(item){const names={basic:'Garagem',premium:'Premium',elite:'Elite'};return item.rewardCount+' pacote '+names[item.rewardType]+(item.rewardCount>1?'s':'');}
+const albumPageRewards={common:{type:'basic',count:1},uncommon:{type:'basic',count:2},rare:{type:'premium',count:1},epic:{type:'premium',count:2},legendary:{type:'elite',count:1},mythic:{type:'elite',count:2},special:{type:'elite',count:3}};
+function albumPageProgress(tier){
+ const page=cars.filter(car=>car.tier===tier);
+ const owned=page.filter(car=>state.owned.includes(car.id)).length;
+ return {total:page.length,owned,complete:page.length>0&&owned===page.length,claimed:!!state.albumPageClaims[tier]};
+}
+function claimAlbumPage(tier){
+ const progress=albumPageProgress(tier),reward=albumPageRewards[tier];
+ if(!progress.complete||progress.claimed||!reward)return;
+ state.albumPageClaims[tier]=true;
+ state.freePacks[reward.type]=(state.freePacks[reward.type]||0)+reward.count;
+ save();renderAlbum();renderFreePacks();
+ const names={basic:'Garagem',premium:'Premium',elite:'Elite'};
+ notify('Página completa! Você recebeu '+reward.count+' pacote '+names[reward.type]+(reward.count>1?'s':'')+'.');
+}
+
 function claimAchievement(id){
  const item=achievementDefinitions.find(a=>a.id===id);if(!item||state.achievementClaims[id]||!achievementProgress(item).done)return;
  state.achievementClaims[id]=true;state.freePacks[item.rewardType]=(state.freePacks[item.rewardType]||0)+item.rewardCount;
@@ -353,20 +382,24 @@ function renderAchievements(){
  const root=document.querySelector('#achievements-view');if(!root)return;
  const claimed=achievementDefinitions.filter(a=>state.achievementClaims[a.id]).length;
  const completed=achievementDefinitions.filter(a=>achievementProgress(a).done).length;
- const ready=achievementDefinitions.filter(a=>achievementProgress(a).done&&!state.achievementClaims[a.id]).length;
+ const readyItems=achievementDefinitions.filter(a=>achievementProgress(a).done&&!state.achievementClaims[a.id]);
+ const ready=readyItems.length;
  const badge=document.querySelector('#achievement-tab-count');
  if(badge){badge.classList.toggle('has-ready',ready>0);badge.setAttribute('aria-label',ready>0?ready+' conquistas prontas para resgatar':'Nenhuma conquista pronta');}
+ const renderCard=item=>{
+  const p=achievementProgress(item),isClaimed=!!state.achievementClaims[item.id];
+  const current=item.metric==='cash'?fmt(p.current):Math.floor(p.current).toLocaleString('pt-BR');
+  const target=item.metric==='cash'?fmt(item.target):item.target.toLocaleString('pt-BR');
+  return '<article class="achievement-card '+(isClaimed?'claimed':p.done?'ready':'')+'"><div class="achievement-card-top"><span class="achievement-medal">'+(isClaimed?'✓':p.done?'★':'◇')+'</span><span class="achievement-reward">'+rewardLabel(item)+'</span></div><h4>'+item.title+'</h4><p>'+item.description+'</p><div class="achievement-progress"><span style="width:'+p.percent+'%"></span></div><div class="achievement-card-bottom"><small>'+current+' / '+target+'</small><button type="button" data-claim-achievement="'+item.id+'" '+(!p.done||isClaimed?'disabled':'')+'>'+(isClaimed?'RESGATADA':p.done?'RESGATAR':'EM ANDAMENTO')+'</button></div></article>';
+ };
+ const readySection=readyItems.length?'<section class="achievement-group achievement-ready-group"><div class="achievement-group-heading"><h3>Prontas para resgatar</h3><span>'+readyItems.length+' disponíveis</span></div><div class="achievement-grid">'+readyItems.map(renderCard).join('')+'</div></section>':'';
  const groups=['Dinheiro','Dedicação','Coleção','Raridades','Melhorias','Pacotes'];
  const cards=groups.map(group=>{
-  const items=achievementDefinitions.filter(a=>a.group===group);
-  return '<section class="achievement-group"><div class="achievement-group-heading"><h3>'+group+'</h3><span>'+items.filter(a=>achievementProgress(a).done).length+' / '+items.length+'</span></div><div class="achievement-grid">'+items.map(item=>{
-   const p=achievementProgress(item),isClaimed=!!state.achievementClaims[item.id];
-   const current=item.metric==='cash'?fmt(p.current):Math.floor(p.current).toLocaleString('pt-BR');
-   const target=item.metric==='cash'?fmt(item.target):item.target.toLocaleString('pt-BR');
-   return '<article class="achievement-card '+(isClaimed?'claimed':p.done?'ready':'')+'"><div class="achievement-card-top"><span class="achievement-medal">'+(isClaimed?'✓':p.done?'★':'◇')+'</span><span class="achievement-reward">'+rewardLabel(item)+'</span></div><h4>'+item.title+'</h4><p>'+item.description+'</p><div class="achievement-progress"><span style="width:'+p.percent+'%"></span></div><div class="achievement-card-bottom"><small>'+current+' / '+target+'</small><button type="button" data-claim-achievement="'+item.id+'" '+(!p.done||isClaimed?'disabled':'')+'>'+(isClaimed?'RESGATADA':p.done?'RESGATAR':'EM ANDAMENTO')+'</button></div></article>';
-  }).join('')+'</div></section>';
+  const items=achievementDefinitions.filter(a=>a.group===group&&!(!state.achievementClaims[a.id]&&achievementProgress(a).done));
+  if(!items.length)return '';
+  return '<section class="achievement-group"><div class="achievement-group-heading"><h3>'+group+'</h3><span>'+items.filter(a=>achievementProgress(a).done).length+' / '+items.length+'</span></div><div class="achievement-grid">'+items.map(renderCard).join('')+'</div></section>';
  }).join('');
- root.innerHTML='<div class="achievement-intro"><div><span class="eyebrow">DESAFIOS DO COLECIONADOR</span><h2>Conquistas</h2><p>Complete objetivos e resgate suas recompensas.</p></div><div class="achievement-summary"><strong>'+completed+' / 50</strong><small>CONQUISTAS LIBERADAS</small><span>'+claimed+' RESGATADAS</span></div></div>'+cards;
+ root.innerHTML='<div class="achievement-intro"><div><span class="eyebrow">DESAFIOS DO COLECIONADOR</span><h2>Conquistas</h2><p>Complete objetivos e resgate suas recompensas.</p></div><div class="achievement-summary"><strong>'+completed+' / 50</strong><small>CONQUISTAS LIBERADAS</small><span>'+claimed+' RESGATADAS</span></div></div>'+readySection+cards;
  root.querySelectorAll('[data-claim-achievement]').forEach(button=>button.addEventListener('click',()=>claimAchievement(button.dataset.claimAchievement)));
  renderFreePacks();
 }
