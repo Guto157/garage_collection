@@ -147,11 +147,12 @@ function checkHeroCarImage(car){
 
 
 const fmt=n=>'R$ '+Math.floor(n).toLocaleString('pt-BR');
-const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false};
+const defaultState={money:250,owned:['city'],selected:'city',clickLevel:0,incomeLevel:0,networkLevel:0,lastSave:Date.now(),lastDaily:'',missionClaimed:false,cardCopies:{}};
 let state={...defaultState};
 try{const raw=localStorage.getItem(key);if(raw){const parsed=JSON.parse(raw);state={...defaultState,...parsed};}}catch(e){console.warn('Save inválido, iniciando novo jogo',e)}
 // Protege os níveis contra valores inválidos gravados em versões anteriores.
 for(const field of ['clickLevel','incomeLevel','networkLevel']){const value=Number(state[field]);state[field]=Number.isFinite(value)&&value>=0?Math.floor(value):0;}
+state.cardCopies=state.cardCopies&&typeof state.cardCopies==='object'?state.cardCopies:{};
 state.owned=[...new Set(['city',...(Array.isArray(state.owned)?state.owned:[])])].filter(id=>cars.some(c=>c.id===id));
 if(!cars.some(c=>c.id===state.selected&&state.owned.includes(c.id)))state.selected=state.owned[0];
 const incomeBase=()=>cars.filter(c=>state.owned.includes(c.id)).reduce((sum,c)=>sum+c.income,0);
@@ -161,7 +162,7 @@ let toastTimer;
 function save(){state.lastSave=Date.now();try{localStorage.setItem(key,JSON.stringify(state))}catch(e){console.warn('Não foi possível salvar',e)}}
 function notify(msg){const el=document.querySelector('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
 function getCar(id){return cars.find(c=>c.id===id)||cars[0]}
-function card(c){const owned=state.owned.includes(c.id);return '<article class="vehicle-card '+(!owned?'locked':'')+'"><div class="vehicle-art"><img data-car-id="'+c.id+'" loading="lazy" src="'+c.image+'" alt="'+c.name+'"></div><div class="vehicle-body"><span class="rarity '+c.tier+'">'+c.rarity+'</span><h3>'+c.name+'</h3><p>'+c.class+' · '+fmt(c.income)+'/min</p><div class="vehicle-meta"><span>PREÇO</span><strong>'+fmt(c.price)+'</strong></div>'+(owned?'<span class="owned-tag">✓ NA SUA COLEÇÃO</span>':'<button class="buy-button" data-buy="'+c.id+'" '+(state.money<c.price?'disabled':'')+'>COMPRAR VEÍCULO</button>')+'</div></article>'}
+function card(c){const owned=state.owned.includes(c.id);const copies=1+Math.max(0,Number(state.cardCopies[c.id])||0);return '<article class="vehicle-card '+(!owned?'locked':'')+'"><div class="vehicle-art"><img data-car-id="'+c.id+'" loading="lazy" src="'+c.image+'" alt="'+c.name+'"></div><div class="vehicle-body"><span class="rarity '+c.tier+'">'+c.rarity+'</span><h3>'+c.name+'</h3><p>'+c.class+' · '+fmt(c.income)+'/min</p><div class="vehicle-meta"><span>PREÇO</span><strong>'+fmt(c.price)+'</strong></div>'+(owned?'<span class="owned-tag">✓ NA SUA COLEÇÃO · '+copies+'x</span>':'<button class="buy-button" data-buy="'+c.id+'" '+(state.money<c.price?'disabled':'')+'>COMPRAR VEÍCULO</button>')+'</div></article>'}
 let openDealershipRarity=null;
 try{openDealershipRarity=localStorage.getItem(key+'_openRarity')||null;}catch(e){}
 const rarityGroups=[
@@ -217,7 +218,31 @@ renderUpgrades();renderMission();renderDaily();
 document.querySelectorAll('[data-select]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.select;save();render()});
 
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(b.dataset.buy));
+renderPackButtons();
 }
+
+const packOptions={
+ basic:{price:500,weights:{common:65,uncommon:23,rare:8,epic:3,legendary:0.8,mythic:0.1995},special:0.0005},
+ premium:{price:5000,weights:{common:35,uncommon:30,rare:20,epic:10,legendary:4,mythic:0.9995},special:0.0005},
+ elite:{price:50000,weights:{common:10,uncommon:15,rare:25,epic:25,legendary:18,mythic:6.9995},special:0.0005}
+};
+function renderPackButtons(){document.querySelectorAll('[data-pack]').forEach(button=>{const pack=packOptions[button.dataset.pack];button.disabled=!pack||state.money<pack.price;});}
+function openPack(type){
+ const pack=packOptions[type];if(!pack)return;
+ if(state.money<pack.price){notify('Saldo insuficiente para este pacote.');return;}
+ state.money-=pack.price;
+ const roll=Math.random()*100;let car;
+ if(roll<pack.special){const specials=cars.filter(c=>c.tier==='special');car=specials[Math.floor(Math.random()*specials.length)];}
+ else{const entries=Object.entries(pack.weights),total=entries.reduce((sum,item)=>sum+item[1],0);let pick=Math.random()*total,tier=entries[0][0];for(const [name,weight] of entries){pick-=weight;if(pick<=0){tier=name;break;}}const pool=cars.filter(c=>c.tier===tier);car=pool[Math.floor(Math.random()*pool.length)];}
+ const duplicate=state.owned.includes(car.id);
+ if(duplicate)state.cardCopies[car.id]=(Number(state.cardCopies[car.id])||0)+1;else state.owned.push(car.id);
+ state.selected=car.id;save();render();
+ const result=document.querySelector('#pack-result');result.hidden=false;
+ result.innerHTML='<div class="pack-result-heading">PACOTE ABERTO</div><div class="pack-result-card"><img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta repetida! Agora você tem '+(1+state.cardCopies[car.id])+' cópias.':'Nova carta adicionada à sua coleção!')+'</p></div></div>';
+ result.scrollIntoView({behavior:'smooth',block:'nearest'});notify(duplicate?'Você encontrou uma carta repetida!':'Nova carta adicionada à coleção!');
+}
+document.querySelectorAll('[data-pack]').forEach(button=>button.addEventListener('click',()=>openPack(button.dataset.pack)));
+
 function renderUpgrades(){
 const levels={click:state.clickLevel,income:state.incomeLevel,network:state.networkLevel};
 document.querySelector('#upgrade-list').innerHTML=upgrades.map(u=>{
@@ -260,6 +285,13 @@ if(featuredCar){
 }
 document.querySelector('#daily-button').onclick=()=>{const today=new Date().toLocaleDateString('en-CA');if(state.lastDaily===today)return;state.lastDaily=today;state.money+=500;save();render();notify('Bônus diário de R$ 500 resgatado!')};
 document.querySelector('#mission-button').onclick=()=>{if(state.owned.length<2||state.missionClaimed)return;state.money+=1000;state.missionClaimed=true;save();render();notify('Missão concluída: +R$ 1.000!')};
+
+const menuToggle=document.querySelector('#menu-toggle'),sideMenu=document.querySelector('#side-menu'),menuBackdrop=document.querySelector('#menu-backdrop');
+function closeSideMenu(){sideMenu.classList.remove('open');menuBackdrop.classList.remove('show');menuToggle.setAttribute('aria-expanded','false');sideMenu.setAttribute('aria-hidden','true');}
+menuToggle.addEventListener('click',()=>{const open=!sideMenu.classList.contains('open');sideMenu.classList.toggle('open',open);menuBackdrop.classList.toggle('show',open);menuToggle.setAttribute('aria-expanded',String(open));sideMenu.setAttribute('aria-hidden',String(!open));});
+menuBackdrop.addEventListener('click',closeSideMenu);
+sideMenu.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===button.dataset.page));document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));closeSideMenu();window.scrollTo({top:0,behavior:'smooth'});}));
+
 const activeTabKey=key+'_activeTab';
 function activateTab(tabId,remember=true){
  const valid=['garage','dealership','collection','upgrades'];
@@ -278,7 +310,7 @@ save();render();
 // A interface só é restaurada depois da renderização inicial.
 try{savedTab=localStorage.getItem(activeTabKey)||savedTab;}catch(e){}
 activateTab(savedTab,false);
-setInterval(()=>{const gain=income()/60;state.money+=gain;document.querySelector('#money').textContent=fmt(state.money);document.querySelectorAll('[data-buy]').forEach(b=>{const c=getCar(b.dataset.buy);b.disabled=state.money<c.price});document.querySelectorAll('[data-upgrade]').forEach(b=>{const u=upgrades.find(x=>x.kind===b.dataset.upgrade);const lv=x=>x==='click'?state.clickLevel:x==='income'?state.incomeLevel:state.networkLevel; b.disabled=state.money<Math.floor(u.base*Math.pow(1.85,lv(u.kind)))});},1000);
+setInterval(()=>{const gain=income()/60;state.money+=gain;document.querySelector('#money').textContent=fmt(state.money);renderPackButtons();document.querySelectorAll('[data-buy]').forEach(b=>{const c=getCar(b.dataset.buy);b.disabled=state.money<c.price});document.querySelectorAll('[data-upgrade]').forEach(b=>{const u=upgrades.find(x=>x.kind===b.dataset.upgrade);const lv=x=>x==='click'?state.clickLevel:x==='income'?state.incomeLevel:state.networkLevel; b.disabled=state.money<Math.floor(u.base*Math.pow(1.85,lv(u.kind)))});},1000);
 setInterval(save,10000);
 
 
