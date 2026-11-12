@@ -395,11 +395,13 @@ function renderAchievements(){
  const readySection=readyItems.length?'<section class="achievement-group achievement-ready-group"><div class="achievement-group-heading"><h3>Prontas para resgatar</h3><span>'+readyItems.length+' disponíveis</span></div><div class="achievement-grid">'+readyItems.map(renderCard).join('')+'</div></section>':'';
  const groups=['Dinheiro','Dedicação','Coleção','Raridades','Melhorias','Pacotes'];
  const cards=groups.map(group=>{
-  const items=achievementDefinitions.filter(a=>a.group===group&&!(!state.achievementClaims[a.id]&&achievementProgress(a).done));
+  const items=achievementDefinitions.filter(a=>a.group===group&&!state.achievementClaims[a.id]&&!achievementProgress(a).done);
   if(!items.length)return '';
   return '<section class="achievement-group"><div class="achievement-group-heading"><h3>'+group+'</h3><span>'+items.filter(a=>achievementProgress(a).done).length+' / '+items.length+'</span></div><div class="achievement-grid">'+items.map(renderCard).join('')+'</div></section>';
  }).join('');
- root.innerHTML='<div class="achievement-intro"><div><span class="eyebrow">DESAFIOS DO COLECIONADOR</span><h2>Conquistas</h2><p>Complete objetivos e resgate suas recompensas.</p></div><div class="achievement-summary"><strong>'+completed+' / 50</strong><small>CONQUISTAS LIBERADAS</small><span>'+claimed+' RESGATADAS</span></div></div>'+readySection+cards;
+ const completedItems=achievementDefinitions.filter(a=>!!state.achievementClaims[a.id]);
+ const completedSection=completedItems.length?'<details class="achievement-completed"><summary><span><strong>Conquistas completadas</strong><small>'+completedItems.length+' resgatadas</small></span><span class="achievement-completed-arrow">⌄</span></summary><div class="achievement-grid">'+completedItems.map(renderCard).join('')+'</div></details>':'';
+ root.innerHTML='<div class="achievement-intro"><div><span class="eyebrow">DESAFIOS DO COLECIONADOR</span><h2>Conquistas</h2><p>Complete objetivos e resgate suas recompensas.</p></div><div class="achievement-summary"><strong>'+completed+' / 50</strong><small>CONQUISTAS LIBERADAS</small><span>'+claimed+' RESGATADAS</span></div></div>'+readySection+cards+completedSection;
  root.querySelectorAll('[data-claim-achievement]').forEach(button=>button.addEventListener('click',()=>claimAchievement(button.dataset.claimAchievement)));
  renderFreePacks();
 }

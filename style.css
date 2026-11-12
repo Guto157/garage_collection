@@ -277,3 +277,14 @@ img{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user
 .album-page-reward button:disabled{background:#dce9dd;border-color:#9ebba4;color:#467351;cursor:default;}
 .achievement-ready-group{margin-top:18px;padding:13px;border:1px solid #bd914e66;border-radius:10px;background:linear-gradient(120deg,#bd914e12,#151f2d);}
 @media(max-width:420px){.album-page-reward{align-items:flex-start;flex-direction:column}.album-page-reward button{width:100%;}}
+
+/* Conquistas já resgatadas ficam recolhidas no fim da lista */
+.achievement-completed{margin:26px 0 8px;border:1px solid #65c98a55;border-radius:10px;background:linear-gradient(145deg,#14231d,#0e1715);overflow:hidden;}
+.achievement-completed summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px;cursor:pointer;list-style:none;}
+.achievement-completed summary::-webkit-details-marker{display:none;}
+.achievement-completed summary span:first-child{display:flex;flex-direction:column;gap:3px;}
+.achievement-completed summary strong{font:700 19px 'Barlow Condensed';color:#a4dfb7;}
+.achievement-completed summary small{font-size:10px;color:var(--muted);}
+.achievement-completed-arrow{font-size:22px;color:#83d6a1;transition:transform .2s;}
+.achievement-completed[open] .achievement-completed-arrow{transform:rotate(180deg);}
+.achievement-completed .achievement-grid{padding:0 12px 12px;}
