@@ -39,7 +39,6 @@ document.querySelector('#money').textContent=fmt(state.money);
 document.querySelector('#owned-count').textContent=state.owned.length;
 document.querySelector('#income').textContent=fmt(income());
 document.querySelector('#click-power').textContent=fmt(clickPower());
-document.querySelector('#click-value').textContent='+ '+fmt(clickPower());
 document.querySelector('#hero-car').src=car.image;
 document.querySelector('#hero-car').alt=car.name;
 document.querySelector('#car-name').textContent=car.name;
@@ -74,13 +73,30 @@ function refreshCashOnly(){
  const moneyEl=document.querySelector('#money');
  if(moneyEl)moneyEl.textContent=fmt(state.money);
  document.querySelectorAll('[data-buy]').forEach(b=>{const c=getCar(b.dataset.buy);b.disabled=state.money<c.price});
+ document.querySelectorAll('[data-upgrade]').forEach(b=>{const u=upgrades.find(x=>x.kind===b.dataset.upgrade);const lv=b.dataset.upgrade==='click'?state.clickLevel:b.dataset.upgrade==='income'?state.incomeLevel:state.networkLevel;b.disabled=state.money<Math.floor(u.base*Math.pow(1.85,lv))});
 }
-document.querySelector('#work-button').addEventListener('click',()=>{
+function earnFromCar(event){
  const gain=clickPower();
  state.money+=gain;
  refreshCashOnly();
+ const scene=document.querySelector('.scene-wrap');
+ const pop=document.createElement('span');
+ pop.className='money-float';
+ pop.textContent='+ '+fmt(gain);
+ const rect=scene.getBoundingClientRect();
+ const x=event&&typeof event.clientX==='number'?event.clientX-rect.left:rect.width/2;
+ const y=event&&typeof event.clientY==='number'?event.clientY-rect.top:rect.height*.55;
+ pop.style.left=Math.max(24,Math.min(rect.width-24,x))+'px';
+ pop.style.top=Math.max(28,Math.min(rect.height-20,y))+'px';
+ scene.appendChild(pop);
+ pop.addEventListener('animationend',()=>pop.remove(),{once:true});
  if(saveClickTimer)clearTimeout(saveClickTimer);
  saveClickTimer=setTimeout(()=>{saveClickTimer=null;save()},250);
+}
+const featuredCar=document.querySelector('#hero-car');
+featuredCar.addEventListener('click',earnFromCar);
+featuredCar.addEventListener('keydown',event=>{
+ if(event.key==='Enter'||event.key===' '){event.preventDefault();earnFromCar();}
 });
 document.querySelector('#daily-button').onclick=()=>{const today=new Date().toLocaleDateString('en-CA');if(state.lastDaily===today)return;state.lastDaily=today;state.money+=500;save();render();notify('Bônus diário de R$ 500 resgatado!')};
 document.querySelector('#mission-button').onclick=()=>{if(state.owned.length<2||state.missionClaimed)return;state.money+=1000;state.missionClaimed=true;save();render();notify('Missão concluída: +R$ 1.000!')};
