@@ -271,11 +271,13 @@ function activateTab(tabId,remember=true){
 document.querySelectorAll('.tab').forEach(button=>button.onclick=()=>activateTab(button.dataset.tab));
 let savedTab='garage';
 try{savedTab=localStorage.getItem(activeTabKey)||'garage';}catch(e){}
-activateTab(savedTab,false);
 const elapsed=Math.max(0,Math.min(8*60*60,(Date.now()-(state.lastSave||Date.now()))/1000));
 const offline=Math.floor(income()*elapsed/60);
 if(offline>0){state.money+=offline;setTimeout(()=>notify('Enquanto esteve fora, sua garagem rendeu '+fmt(offline)+'.'),700)}
 save();render();
+// A interface só é restaurada depois da renderização inicial.
+try{savedTab=localStorage.getItem(activeTabKey)||savedTab;}catch(e){}
+activateTab(savedTab,false);
 setInterval(()=>{const gain=income()/60;state.money+=gain;document.querySelector('#money').textContent=fmt(state.money);document.querySelectorAll('[data-buy]').forEach(b=>{const c=getCar(b.dataset.buy);b.disabled=state.money<c.price});document.querySelectorAll('[data-upgrade]').forEach(b=>{const u=upgrades.find(x=>x.kind===b.dataset.upgrade);const lv=x=>x==='click'?state.clickLevel:x==='income'?state.incomeLevel:state.networkLevel; b.disabled=state.money<Math.floor(u.base*Math.pow(1.85,lv(u.kind)))});},1000);
 setInterval(save,10000);
 
