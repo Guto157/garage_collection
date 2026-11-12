@@ -1,12 +1,12 @@
 const cars=[
 {id:'city',name:'Volkswagen Golf GTI',class:'Hatch esportivo',rarity:'COMUM',tier:'common',price:0,income:3,description:'Seu primeiro esportivo. O começo da coleção.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Volkswagen_Golf_GTi_MK_7.jpg/1280px-Volkswagen_Golf_GTi_MK_7.jpg'},
-{id:'porsche',name:'Porsche 911 Carrera',class:'Esportivo',rarity:'INCOMUM',tier:'uncommon',price:100000,income:50,description:'Um ícone das estradas, com design inconfundível.',image:'https://upload.wikimedia.org/wikipedia/commons/b/b5/Porsche_911_Carrera.jpg'},
-{id:'mercedes',name:'Mercedes-AMG GT',class:'Grand tourer',rarity:'RARO',tier:'rare',price:750000,income:300,description:'Elegância alemã com desempenho de pista.',image:'https://upload.wikimedia.org/wikipedia/commons/b/bf/MERCEDES-AMG_GT.jpg'},
-{id:'ferrari',name:'Ferrari 458 Italia',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:6000000,income:2200,description:'Um V8 italiano e linhas que marcaram época.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Ferrari458Italia.jpg/1280px-Ferrari458Italia.jpg'},
-{id:'lamborghini',name:'Lamborghini Aventador',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:50000000,income:16000,description:'Presença extrema e desempenho extraordinário.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Lamborghini_Aventador.jpg/1280px-Lamborghini_Aventador.jpg'},
-{id:'porschegt',name:'Porsche 911 GT2 RS',class:'Track-focused',rarity:'LENDÁRIO',tier:'legendary',price:400000000,income:120000,description:'Uma máquina de alto desempenho feita para a pista.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Porsche_911_GT2_RS.jpg/1280px-Porsche_911_GT2_RS.jpg'},
-{id:'mclaren',name:'McLaren 720S',class:'Hipercarro',rarity:'LENDÁRIO',tier:'legendary',price:3500000000,income:900000,description:'Tecnologia, leveza e aerodinâmica de outro nível.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/McLaren_720S.jpg/1280px-McLaren_720S.jpg'},
-{id:'bugatti',name:'Bugatti Chiron',class:'Hipercarro',rarity:'MÍTICO',tier:'mythic',price:30000000000,income:7000000,description:'O topo absoluto da engenharia automotiva.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/A_Bugatti_Chiron.jpg/1280px-A_Bugatti_Chiron.jpg'}
+{id:'porsche',name:'Porsche 911 Carrera',class:'Esportivo',rarity:'INCOMUM',tier:'uncommon',price:80000,income:50,description:'Um ícone das estradas, com design inconfundível.',image:'https://upload.wikimedia.org/wikipedia/commons/b/b5/Porsche_911_Carrera.jpg'},
+{id:'mercedes',name:'Mercedes-AMG GT',class:'Grand tourer',rarity:'RARO',tier:'rare',price:600000,income:300,description:'Elegância alemã com desempenho de pista.',image:'https://upload.wikimedia.org/wikipedia/commons/b/bf/MERCEDES-AMG_GT.jpg'},
+{id:'ferrari',name:'Ferrari 458 Italia',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:5000000,income:2200,description:'Um V8 italiano e linhas que marcaram época.',image:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Ferrari458Italia.jpg/1280px-Ferrari458Italia.jpg'},
+{id:'lamborghini',name:'Lamborghini Aventador',class:'Superesportivo',rarity:'ÉPICO',tier:'epic',price:40000000,income:16000,description:'Presença extrema e desempenho extraordinário.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/Lamborghini_Aventador.jpg/1280px-Lamborghini_Aventador.jpg'},
+{id:'porschegt',name:'Porsche 911 GT2 RS',class:'Track-focused',rarity:'LENDÁRIO',tier:'legendary',price:300000000,income:120000,description:'Uma máquina de alto desempenho feita para a pista.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Porsche_911_GT2_RS.jpg/1280px-Porsche_911_GT2_RS.jpg'},
+{id:'mclaren',name:'McLaren 720S',class:'Hipercarro',rarity:'LENDÁRIO',tier:'legendary',price:2500000000,income:900000,description:'Tecnologia, leveza e aerodinâmica de outro nível.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/McLaren_720S.jpg/1280px-McLaren_720S.jpg'},
+{id:'bugatti',name:'Bugatti Chiron',class:'Hipercarro',rarity:'MÍTICO',tier:'mythic',price:20000000000,income:7000000,description:'O topo absoluto da engenharia automotiva.',image:'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/A_Bugatti_Chiron.jpg/1280px-A_Bugatti_Chiron.jpg'}
 ];
 const upgrades=[
 {id:'click',name:'Treinamento do colecionador',desc:'Aumenta o dinheiro recebido por toque.',base:500,kind:'click'},
@@ -27,7 +27,7 @@ state.owned=[...new Set(['city',...(Array.isArray(state.owned)?state.owned:[])])
 if(!cars.some(c=>c.id===state.selected&&state.owned.includes(c.id)))state.selected=state.owned[0];
 const incomeBase=()=>cars.filter(c=>state.owned.includes(c.id)).reduce((sum,c)=>sum+c.income,0);
 const income=()=>incomeBase()*(1+state.incomeLevel*.65+state.networkLevel*1.4);
-const clickPower=()=>5*Math.pow(1.5,state.clickLevel);
+const clickPower=()=>15*Math.pow(1.5,state.clickLevel);
 let toastTimer;
 function save(){state.lastSave=Date.now();try{localStorage.setItem(key,JSON.stringify(state))}catch(e){console.warn('Não foi possível salvar',e)}}
 function notify(msg){const el=document.querySelector('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
