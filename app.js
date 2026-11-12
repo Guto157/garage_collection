@@ -301,9 +301,11 @@ renderPackButtons();
 }
 
 const packOptions={
- basic:{price:500,weights:{common:65,uncommon:23,rare:8,epic:3,legendary:0.8,mythic:0.19999},special:0.00001},
- premium:{price:5000,weights:{common:35,uncommon:30,rare:20,epic:10,legendary:4,mythic:0.99998},special:0.00002},
- elite:{price:50000,weights:{common:10,uncommon:15,rare:25,epic:25,legendary:18,mythic:6.9999},special:0.0001}
+ // Pesos em porcentagem. A chance SPECIAL fica separada e preserva
+ // exatamente as probabilidades definidas anteriormente.
+ basic:{price:500,weights:{common:70,uncommon:22,rare:7.99999},special:0.00001},
+ premium:{price:5000,weights:{common:10,uncommon:25,rare:40,epic:20,legendary:4.99998},special:0.00002},
+ elite:{price:50000,weights:{common:5,uncommon:10,rare:20,epic:40,legendary:20,mythic:4.9999},special:0.0001}
 };
 function renderPackButtons(){document.querySelectorAll('[data-pack]').forEach(button=>{const pack=packOptions[button.dataset.pack];button.disabled=!pack||state.money<pack.price;});}
 function showSpecialReveal(car,duplicate){
@@ -346,26 +348,24 @@ function openPack(type){
  if(state.money<pack.price){notify('Saldo insuficiente para este pacote.');return;}
  state.money-=pack.price;
  const roll=Math.random()*100;let car;
- if(roll<pack.special){const specials=cars.filter(c=>c.tier==='special');car=specials[Math.floor(Math.random()*specials.length)];}
- else{
-  // Pacotes comuns só sorteiam veículos já conquistados/desbloqueados.
-  // Os pesos dos níveis sem cartas disponíveis são redistribuídos
-  // proporcionalmente entre os níveis que o jogador já possui.
-  const available=Object.entries(pack.weights).map(([tier,weight])=>({
-   tier,weight,pool:cars.filter(c=>c.tier===tier&&state.owned.includes(c.id))
-  })).filter(entry=>entry.pool.length>0);
-  const total=available.reduce((sum,entry)=>sum+entry.weight,0);
-  let pick=Math.random()*total;
-  let selected=available[available.length-1];
-  for(const entry of available){pick-=entry.weight;if(pick<=0){selected=entry;break;}}
-  const pool=selected.pool;
+ if(roll<pack.special){
+  const specials=cars.filter(c=>c.tier==='special');
+  car=specials[Math.floor(Math.random()*specials.length)];
+ }else{
+  // Os pacotes podem desbloquear qualquer veículo da raridade sorteada,
+  // mesmo que ele ainda esteja bloqueado na concessionária ou no álbum.
+  const available=Object.entries(pack.weights);
+  let pick=Math.random()*available.reduce((sum,entry)=>sum+entry[1],0);
+  let selected=available[available.length-1][0];
+  for(const [tier,weight] of available){pick-=weight;if(pick<=0){selected=tier;break;}}
+  const pool=cars.filter(c=>c.tier===selected);
   car=pool[Math.floor(Math.random()*pool.length)];
  }
  const duplicate=state.owned.includes(car.id);
  if(duplicate)state.cardCopies[car.id]=(Number(state.cardCopies[car.id])||0)+1;else{state.owned.push(car.id);albumNewVehicleId=car.id;}
  state.selected=car.id;save();render();
  const result=document.querySelector('#pack-result');result.hidden=false;
- result.innerHTML='<div class="pack-result-heading">PACOTE ABERTO</div><div class="pack-result-card"><img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta repetida! Agora você tem '+(1+state.cardCopies[car.id])+' cópias.':'Nova carta adicionada à sua coleção!')+'</p></div></div>';
+ result.innerHTML='<div class="pack-result-heading">PACOTE ABERTO</div><div class="pack-result-card"><img src="'+car.image+'" alt=""><div><span class="rarity '+car.tier+'">'+car.rarity+'</span><h3>'+car.name+'</h3><p>'+(duplicate?'Carta adicionada ao álbum.':'Nova carta desbloqueada e adicionada ao álbum!')+'</p></div></div>';
  if(car.tier==='special')showSpecialReveal(car,duplicate);
  else result.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
