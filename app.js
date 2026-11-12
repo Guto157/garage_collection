@@ -85,23 +85,30 @@ const commonsImageRequests=new Map();
 async function findCommonsCarImage(car){
  if(commonsImageRequests.has(car.id))return commonsImageRequests.get(car.id);
  const task=(async()=>{
-  const query=encodeURIComponent('filetype:bitmap "'+car.name+'"');
-  const endpoint='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+query+'&gsrnamespace=6&gsrlimit=12&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*';
-  const response=await fetch(endpoint);
-  if(!response.ok)throw new Error('Falha ao consultar imagens');
-  const data=await response.json();
-  const pages=Object.values(data.query?.pages||{});
-  const usable=pages.filter(page=>{
-   const title=(page.title||'').toLowerCase();
-   return /\.(jpg|jpeg|png|webp)$/i.test(title)&&page.imageinfo?.[0];
-  });
-  if(!usable.length)return null;
   const tokens=car.name.toLowerCase().split(/[^a-z0-9]+/).filter(word=>word.length>2);
-  usable.sort((a,b)=>{
-   const score=page=>tokens.reduce((sum,token)=>sum+((page.title||'').toLowerCase().includes(token)?1:0),0);
-   return score(b)-score(a);
-  });
-  return usable[0].imageinfo[0].thumburl||usable[0].imageinfo[0].url||null;
+  const searches=[car.name,tokens.slice(0,3).join(' ')].filter(Boolean);
+  for(const term of [...new Set(searches)]){
+   const query=encodeURIComponent(term);
+   const endpoint='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='+query+'&gsrnamespace=6&gsrlimit=30&prop=imageinfo&iiprop=url&iiurlwidth=1200&format=json&origin=*';
+   const response=await fetch(endpoint);
+   if(!response.ok)continue;
+   const data=await response.json();
+   const pages=Object.values(data.query?.pages||{});
+   const usable=pages.filter(page=>{
+    const title=(page.title||'').toLowerCase();
+    return /\.(jpg|jpeg|png|webp)$/i.test(title)&&page.imageinfo?.[0];
+   }).map(page=>{
+    const title=(page.title||'').toLowerCase();
+    const score=tokens.reduce((sum,token)=>sum+(title.includes(token)?1:0),0);
+    return {page,score};
+   }).filter(item=>item.score>=Math.min(2,tokens.length));
+   usable.sort((a,b)=>b.score-a.score);
+   if(usable.length){
+    const info=usable[0].page.imageinfo[0];
+    return info.thumburl||info.url||null;
+   }
+  }
+  return null;
  })();
  commonsImageRequests.set(car.id,task);
  return task;
@@ -156,6 +163,7 @@ function notify(msg){const el=document.querySelector('#toast');el.textContent=ms
 function getCar(id){return cars.find(c=>c.id===id)||cars[0]}
 function card(c){const owned=state.owned.includes(c.id);return '<article class="vehicle-card '+(!owned?'locked':'')+'"><div class="vehicle-art"><img data-car-id="'+c.id+'" loading="lazy" src="'+c.image+'" alt="'+c.name+'"></div><div class="vehicle-body"><span class="rarity '+c.tier+'">'+c.rarity+'</span><h3>'+c.name+'</h3><p>'+c.class+' · '+fmt(c.income)+'/min</p><div class="vehicle-meta"><span>PREÇO</span><strong>'+fmt(c.price)+'</strong></div>'+(owned?'<span class="owned-tag">✓ NA SUA COLEÇÃO</span>':'<button class="buy-button" data-buy="'+c.id+'" '+(state.money<c.price?'disabled':'')+'>COMPRAR VEÍCULO</button>')+'</div></article>'}
 let openDealershipRarity=null;
+try{openDealershipRarity=localStorage.getItem(key+'_openRarity')||null;}catch(e){}
 const rarityGroups=[
  {tier:'common',label:'COMUM',note:'Primeiros clássicos da garagem'},
  {tier:'uncommon',label:'INCOMUM',note:'Esportivos especiais'},
@@ -175,6 +183,7 @@ function renderDealership(){
  }).join('');
  container.querySelectorAll('[data-rarity]').forEach(button=>button.onclick=()=>{
   openDealershipRarity=openDealershipRarity===button.dataset.rarity?null:button.dataset.rarity;
+  try{if(openDealershipRarity)localStorage.setItem(key+'_openRarity',openDealershipRarity);else localStorage.removeItem(key+'_openRarity');}catch(e){}
   renderDealership();
  });
  container.querySelectorAll('[data-buy]').forEach(button=>button.onclick=()=>buy(button.dataset.buy));
@@ -251,7 +260,18 @@ if(featuredCar){
 }
 document.querySelector('#daily-button').onclick=()=>{const today=new Date().toLocaleDateString('en-CA');if(state.lastDaily===today)return;state.lastDaily=today;state.money+=500;save();render();notify('Bônus diário de R$ 500 resgatado!')};
 document.querySelector('#mission-button').onclick=()=>{if(state.owned.length<2||state.missionClaimed)return;state.money+=1000;state.missionClaimed=true;save();render();notify('Missão concluída: +R$ 1.000!')};
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab+'-view'))});
+const activeTabKey=key+'_activeTab';
+function activateTab(tabId,remember=true){
+ const valid=['garage','dealership','collection','upgrades'];
+ const selected=valid.includes(tabId)?tabId:'garage';
+ document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab===selected));
+ document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===selected+'-view'));
+ if(remember){try{localStorage.setItem(activeTabKey,selected);}catch(e){}}
+}
+document.querySelectorAll('.tab').forEach(button=>button.onclick=()=>activateTab(button.dataset.tab));
+let savedTab='garage';
+try{savedTab=localStorage.getItem(activeTabKey)||'garage';}catch(e){}
+activateTab(savedTab,false);
 const elapsed=Math.max(0,Math.min(8*60*60,(Date.now()-(state.lastSave||Date.now()))/1000));
 const offline=Math.floor(income()*elapsed/60);
 if(offline>0){state.money+=offline;setTimeout(()=>notify('Enquanto esteve fora, sua garagem rendeu '+fmt(offline)+'.'),700)}
