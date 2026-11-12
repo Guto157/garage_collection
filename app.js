@@ -573,7 +573,7 @@ resetConfirm.querySelector('.reset-continue').addEventListener('click',()=>{
 });
 menuToggle.addEventListener('click',()=>{const open=!sideMenu.classList.contains('open');sideMenu.classList.toggle('open',open);menuBackdrop.classList.toggle('show',open);menuToggle.setAttribute('aria-expanded',String(open));sideMenu.setAttribute('aria-hidden',String(!open));});
 menuBackdrop.addEventListener('click',closeSideMenu);
-sideMenu.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===button.dataset.page));document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));document.body.classList.toggle('shop-open',button.dataset.page==='shop-view');closeSideMenu();window.scrollTo({top:0,behavior:'smooth'});}));
+sideMenu.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===button.dataset.page));document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));document.body.classList.toggle('shop-open',button.dataset.page==='shop-view');document.dispatchEvent(new CustomEvent('garage:pagechange',{detail:button.dataset.page}));closeSideMenu();window.scrollTo({top:0,behavior:'smooth'});}));
 
 const activeTabKey=key+'_activeTab';
 function activateTab(tabId,remember=true){
@@ -582,6 +582,7 @@ function activateTab(tabId,remember=true){
  const selected=valid.includes(tabId)?tabId:'garage';
  document.querySelectorAll('.tab').forEach(button=>button.classList.toggle('active',button.dataset.tab===selected));
  document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.id===selected+'-view'));
+ document.dispatchEvent(new CustomEvent('garage:pagechange',{detail:selected+'-view'}));
  if(remember){try{localStorage.setItem(activeTabKey,selected);}catch(e){}}
  if(selected==='achievements')renderAchievements();
 }
